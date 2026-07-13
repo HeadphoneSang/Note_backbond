@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="把JPA换成了Mybatis-plus" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="3Ew5ecC6DIhrezyzRCijLlUHgNA" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;D:/pro/JavaProject/note_backbond/src/main/java/org/template/Main.java&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ssh.settings&quot;,
+    &quot;spring.configuration.checksum&quot;: &quot;577a9fa75e97f0a0ec831cff8116c7ee&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ]
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="note_backbond" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="org.template.Main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="" />
+      <created>1781076724991</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1781076724991</updated>
+      <workItem from="1781076726116" duration="153000" />
+      <workItem from="1781076892759" duration="4984000" />
+      <workItem from="1781144690479" duration="1136000" />
+      <workItem from="1781165803896" duration="1390000" />
+      <workItem from="1781170416102" duration="1346000" />
+      <workItem from="1781252041637" duration="754000" />
+      <workItem from="1781254048654" duration="4535000" />
+      <workItem from="1781269009346" duration="2157000" />
+      <workItem from="1781441366176" duration="943000" />
+      <workItem from="1781507674709" duration="177000" />
+      <workItem from="1781522565944" duration="4117000" />
+      <workItem from="1781576428530" duration="1782000" />
+      <workItem from="1782188506545" duration="9832000" />
+      <workItem from="1782213319110" duration="2785000" />
+      <workItem from="1782461323906" duration="5972000" />
+      <workItem from="1782696410630" duration="457000" />
+      <workItem from="1783010518675" duration="610000" />
+      <workItem from="1783051196126" duration="879000" />
+      <workItem from="1783096730836" duration="4785000" />
+      <workItem from="1783147434912" duration="643000" />
+      <workItem from="1783214968715" duration="501000" />
+      <workItem from="1783215491844" duration="26000" />
+      <workItem from="1783215649863" duration="3121000" />
+      <workItem from="1783497869968" duration="706000" />
+      <workItem from="1783583446515" duration="190000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-field">
+          <url>file://$PROJECT_DIR$/src/main/java/org/template/model/Notebook.java</url>
+          <line>25</line>
+          <properties field="name" class="org.template.model.Notebook" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-field">
+          <url>file://$PROJECT_DIR$/src/main/java/org/template/model/Notebook.java</url>
+          <line>31</line>
+          <properties field="sortOrder" class="org.template.model.Notebook" />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
