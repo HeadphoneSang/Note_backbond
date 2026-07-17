@@ -82,4 +82,11 @@ public class NotebookService {
         );
         return count > 0;
     }
+
+    /**
+     * 根据 ID 查询笔记本
+     */
+    public Notebook getNotebookById(Integer notebookId) {
+        return notebookMapper.selectNotebookWithNoteCount(notebookId);
+    }
 }

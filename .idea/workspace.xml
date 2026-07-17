@@ -4,14 +4,35 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="把JPA换成了Mybatis-plus" />
+    <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="把JPA换成了Mybatis-plus">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteBlockMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/model/NoteBlock.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/NotebookMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NotebookMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/Note.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/Note.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/Notebook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/Notebook.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NotebookService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NotebookService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/NotebookController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/controller/NotebookController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/Notebook.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/Notebook.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NotebookService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NotebookService.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -21,7 +42,9 @@
   &quot;associatedIndex&quot;: 8
 }</component>
   <component name="ProjectId" id="3Ew5ecC6DIhrezyzRCijLlUHgNA" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -36,6 +59,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/WINDOWS/System32/OpenSSH/ssh.exe&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -52,6 +76,11 @@
     ]
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\pro\note_project\note_backbond\src\main\resources\mapper" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="note_backbond" />
@@ -94,6 +123,12 @@
       <workItem from="1783215649863" duration="3121000" />
       <workItem from="1783497869968" duration="706000" />
       <workItem from="1783583446515" duration="190000" />
+      <workItem from="1783907540386" duration="23668000" />
+      <workItem from="1784020450776" duration="1254000" />
+      <workItem from="1784041325361" duration="5881000" />
+      <workItem from="1784100424392" duration="1950000" />
+      <workItem from="1784186645655" duration="1538000" />
+      <workItem from="1784207490118" duration="2374000" />
     </task>
     <servers />
   </component>
@@ -114,6 +149,11 @@
           <line>31</line>
           <properties field="sortOrder" class="org.template.model.Notebook" />
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/template/interceptor/JwtInterceptor.java</url>
+          <line>80</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

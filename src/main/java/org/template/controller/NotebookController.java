@@ -20,6 +20,13 @@ public class NotebookController {
     @Autowired
     private NotebookService notebookService;
 
+    @GetMapping("/detail")
+    public Result<Notebook> getNotebookDetail(
+            @RequestParam int id) {
+        Notebook notebook = notebookService.getNotebookById(id);
+        return notebook == null ? Result.error("笔记本不存在") : Result.success("查询成功", notebook);
+    }
+
     /**
      * 创建笔记本
      * POST /notebook/add

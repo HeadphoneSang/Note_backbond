@@ -38,4 +38,9 @@ public class Notebook {
     private LocalDateTime updatedAt;
 
     private Integer userId;
+
+    private String avatar;
+
+    @TableField(exist = false)
+    private int totalNoteCnt;
 }

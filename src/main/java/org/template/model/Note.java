@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 笔记实体
@@ -24,8 +25,6 @@ public class Note {
     private Integer id;
 
     private String title;
-
-    private String content;
 
     private String summary;
 
@@ -43,7 +42,12 @@ public class Note {
 
     private LocalDateTime deletedAt;
 
+    private Integer version;
+
     private Integer userId;
 
     private Integer notebookId;
+
+    @TableField(exist = false)
+    private List<Tag> tags;
 }
