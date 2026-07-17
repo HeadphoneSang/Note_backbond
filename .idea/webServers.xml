@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="83672e87-0dff-4941-aa43-92c71e66beff" name="note">
+        <fileTransfer rootFolder="/root/note_backbond" accessType="SFTP" host="47.104.25.40" port="22" sshConfigId="ccdf9242-36b7-4e13-b590-b5af3e1eb5b7" sshConfig="阿里云">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

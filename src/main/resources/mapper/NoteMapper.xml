@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.template.mapper.NoteMapper">
+
+    <resultMap id="NoteWithTagsMap" type="org.template.model.Note">
+        <id property="id" column="note_id" />
+        <result property="title" column="notebook_title" />
+        <result property="summary" column="notebook_summary" />
+        <result property="isMarked" column="notebook_is_marked" />
+        <result property="sortOrder" column="notebook_sort_order"/>
+        <result property="createdAt" column="notebook_created_at" />
+        <result property="updatedAt" column="notebook_updated_at" />
+        <collection property="tags"
+                    ofType="org.template.model.Tag"
+                    notNullColumn="tag_id">
+            <id property="id" column="tag_id"/>
+            <result property="name" column="tag_name"/>
+            <result property="color" column="tag_color"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectNotePageWithTags" resultMap="NoteWithTagsMap">
+        SELECT
+        n.id AS note_id, n.title AS notebook_title,n.is_marked AS notebook_is_marked ,n.summary AS notebook_summary, n.created_at AS notebook_created_at,n.updated_at AS notebook_updated_at, n.sort_order as notebook_sort_order,
+        t.id AS tag_id, t.name AS tag_name, t.color AS tag_color
+        FROM note AS n
+        LEFT JOIN note_tag AS nt ON n.id = nt.note_id
+        LEFT JOIN tag AS t ON nt.tag_id = t.id
+        WHERE n.notebook_id = #{notebookId}
+        AND n.is_delete = 0
+        ORDER BY n.sort_order DESC , n.created_at DESC
+    </select>
+    <select id="selectNotePageWithTagsByUserId" resultMap="NoteWithTagsMap">
+        SELECT
+            n.id AS note_id, n.title AS notebook_title,n.is_marked AS notebook_is_marked ,n.summary AS notebook_summary, n.created_at AS notebook_created_at,n.updated_at AS notebook_updated_at, n.sort_order as notebook_sort_order,
+            t.id AS tag_id, t.name AS tag_name, t.color AS tag_color
+        FROM note AS n
+                 LEFT JOIN note_tag AS nt ON n.id = nt.note_id
+                 LEFT JOIN tag AS t ON nt.tag_id = t.id
+        WHERE n.user_id = #{userId}
+          AND n.is_delete = 0
+        ORDER BY n.sort_order ASC, n.created_at DESC
+    </select>
+</mapper>

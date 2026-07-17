@@ -4,20 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="把JPA换成了Mybatis-plus">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteBlockMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/model/NoteBlock.java" afterDir="false" />
+    <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="更新了笔记相关的">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/NotebookMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NotebookMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/Note.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/Note.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/Notebook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/Notebook.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NotebookService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NotebookService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/NotebookController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/controller/NotebookController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/Notebook.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/Notebook.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NotebookService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NotebookService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NotebookMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/mapper/NotebookMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/Note.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/Note.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,33 +41,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/WINDOWS/System32/OpenSSH/ssh.exe&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;D:/pro/JavaProject/note_backbond/src/main/java/org/template/Main.java&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;ssh.settings&quot;,
-    &quot;spring.configuration.checksum&quot;: &quot;577a9fa75e97f0a0ec831cff8116c7ee&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/WINDOWS/System32/OpenSSH/ssh.exe",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "D:/pro/JavaProject/note_backbond/src/main/java/org/template/Main.java",
+    "settings.editor.selected.configurable": "web.server",
+    "spring.configuration.checksum": "577a9fa75e97f0a0ec831cff8116c7ee",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\pro\note_project\note_backbond\src\main\resources\mapper" />
@@ -128,12 +120,25 @@
       <workItem from="1784041325361" duration="5881000" />
       <workItem from="1784100424392" duration="1950000" />
       <workItem from="1784186645655" duration="1538000" />
-      <workItem from="1784207490118" duration="2374000" />
+      <workItem from="1784207490118" duration="2990000" />
     </task>
+    <task id="LOCAL-00001" summary="更新了笔记相关的">
+      <option name="closed" value="true" />
+      <created>1784252469127</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1784252469127</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="更新了笔记相关的" />
+    <option name="LAST_COMMIT_MESSAGE" value="更新了笔记相关的" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
