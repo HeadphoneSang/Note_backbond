@@ -3,6 +3,8 @@ package org.template.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.template.model.Note;
 import org.template.model.vo.PageResult;
@@ -92,5 +94,19 @@ public class NoteController {
         note.setVersion(1);
         Note created = noteService.createNote(note);
         return Result.success(created);
+    }
+
+    @PostMapping("/title")
+    public Result<Note> updateNoteTitle(
+            @RequestParam Integer noteId,
+            @RequestParam String title,
+            @RequestParam Integer version) {
+        Note note = new Note();
+        note.setTitle(title);
+        note.setId(noteId);
+        note.setVersion(version);
+        // 增加新的修改时间的更新逻辑
+        Note result = noteService.updateNoteWithOptLock(note);
+        return result == null ? Result.error("笔记不存在") : Result.success(result);
     }
 }

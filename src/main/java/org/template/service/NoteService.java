@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.template.exceptions.OptimisticLockException;
 import org.template.mapper.NoteMapper;
 import org.template.model.Note;
 import org.template.model.vo.PageResult;
@@ -61,5 +64,13 @@ public class NoteService {
     public Note createNote(Note note) {
         noteMapper.insert(note);
         return note;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public Note updateNoteWithOptLock(Note note) {
+        if (noteMapper.updateById(note)<= 0){
+            throw new OptimisticLockException("Note版本发生变化，更新冲突，已撤回: "+note.getId());
+        }
+        return noteMapper.selectById(note.getId());
     }
 }

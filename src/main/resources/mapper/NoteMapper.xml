@@ -39,6 +39,6 @@
                  LEFT JOIN tag AS t ON nt.tag_id = t.id
         WHERE n.user_id = #{userId}
           AND n.is_delete = 0
-        ORDER BY n.sort_order ASC, n.created_at DESC
+        ORDER BY n.sort_order DESC, n.created_at DESC
     </select>
 </mapper>

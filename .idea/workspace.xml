@@ -5,11 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="更新了笔记相关的">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/exceptions/OptimisticLockException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NotebookMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/mapper/NotebookMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/Note.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/Note.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/Note.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/Note.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/NoteMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/mapper/NoteMapper.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +122,7 @@
       <workItem from="1784041325361" duration="5881000" />
       <workItem from="1784100424392" duration="1950000" />
       <workItem from="1784186645655" duration="1538000" />
-      <workItem from="1784207490118" duration="2990000" />
+      <workItem from="1784207490118" duration="7611000" />
     </task>
     <task id="LOCAL-00001" summary="更新了笔记相关的">
       <option name="closed" value="true" />
