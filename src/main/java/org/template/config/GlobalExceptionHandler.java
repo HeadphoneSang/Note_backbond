@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.template.exceptions.NoteBlockConflictException;
 import org.template.exceptions.OptimisticLockException;
+import org.template.model.dto.NoteDiffResult;
 import org.template.model.vo.Result;
 
 /**
@@ -34,6 +36,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OptimisticLockException.class)
     public Result<Void> handleOptimisticLock(OptimisticLockException e) {
         return Result.error(CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(NoteBlockConflictException.class)
+    public Result<NoteDiffResult> handleNoteBlockConflict(NoteBlockConflictException e) {
+        return Result.error(CONFLICT, e.getMessage(), e.getResult());
     }
 
     /**

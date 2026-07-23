@@ -8,9 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.template.exceptions.OptimisticLockException;
+import org.template.mapper.NoteBlockMapper;
 import org.template.mapper.NoteMapper;
 import org.template.model.Note;
+import org.template.model.NoteBlock;
+import org.template.model.dto.NoteDiffRequest;
 import org.template.model.vo.PageResult;
+import java.time.LocalDateTime;
 
 /**
  * 笔记业务逻辑层
@@ -20,6 +24,9 @@ public class NoteService {
 
     @Autowired
     private NoteMapper noteMapper;
+
+    @Autowired
+    private NoteBlockMapper noteBlockMapper;
 
     /**
      * 分页查询指定笔记本下的笔记列表
@@ -68,6 +75,8 @@ public class NoteService {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public Note updateNoteWithOptLock(Note note) {
+        // 更新前将 updatedAt 设为当前时间
+        note.setUpdatedAt(LocalDateTime.now());
         if (noteMapper.updateById(note)<= 0){
             throw new OptimisticLockException("Note版本发生变化，更新冲突，已撤回: "+note.getId());
         }

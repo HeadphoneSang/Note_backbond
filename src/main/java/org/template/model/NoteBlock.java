@@ -16,14 +16,16 @@ import java.time.LocalDateTime;
 @TableName("note_block")
 public class NoteBlock {
 
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+    @TableId(type = IdType.INPUT)
+    private String id;
 
     private String type;
 
     private String orderKey;
 
     private JsonNode deltaJson;
+
+    private Integer noteId;
 
     @Version
     private Integer version;

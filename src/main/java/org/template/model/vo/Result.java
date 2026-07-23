@@ -42,6 +42,10 @@ public class Result<T> {
         return new Result<>(code, msg, null);
     }
 
+    public static <T> Result<T> error(int code,String msg, T data) {
+        return new Result<>(code, msg, data);
+    }
+
     public static <T> Result<T> unauthorized(String msg) {
         return new Result<>(401, msg, null);
     }

@@ -41,4 +41,5 @@
           AND n.is_delete = 0
         ORDER BY n.sort_order DESC, n.created_at DESC
     </select>
+
 </mapper>
