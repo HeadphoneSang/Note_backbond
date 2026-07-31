@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.template.mapper.TagMapper">
+    <select id="queryTagsByNoteIds" resultType="org.template.model.dto.NoteTagDTO">
+        SELECT n.`note_id`,t.`id` AS tag_id,t.`user_id` AS user_id, t.`name` AS tag_name,t.`color` AS color, n.`updated_at` AS created_at  FROM note_tag AS n
+            LEFT JOIN tag AS t ON n.`tag_id` = t.`id`
+        WHERE n.`note_id` IN
+        <foreach item="id" collection="noteIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        ORDER BY n.`note_id` ASC, n.`updated_at` ASC
+    </select>
+</mapper>

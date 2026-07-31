@@ -8,6 +8,9 @@ import org.template.mapper.NotebookMapper;
 import org.template.model.Notebook;
 import org.template.model.vo.PageResult;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 笔记本业务逻辑层
  */
@@ -40,6 +43,7 @@ public class NotebookService {
      * @param size    每页条数
      * @return 分页结果
      */
+
     public PageResult<Notebook> getNotebooksByUserId(Integer userId, long current, long size) {
         Page<Notebook> page = new Page<>(current, size);
         LambdaQueryWrapper<Notebook> wrapper = new LambdaQueryWrapper<Notebook>()
@@ -88,5 +92,18 @@ public class NotebookService {
      */
     public Notebook getNotebookById(Integer notebookId) {
         return notebookMapper.selectNotebookWithNoteCount(notebookId);
+    }
+
+    /**
+     * 查询指定用户的所有笔记本简略信息
+     * @param userId 用户ID
+     * @return 笔记本简略信息
+     */
+    public List<Notebook> selectNotebookAbInfoByUserId(Integer userId){
+        List<Notebook> results = notebookMapper.selectNotebookAbInfoByUserId(userId);
+        if (results == null) {
+            return new ArrayList<>();
+        }
+        return results;
     }
 }

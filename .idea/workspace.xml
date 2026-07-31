@@ -5,23 +5,43 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="增加了全局REST拦截器">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteBlockController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/exceptions/NoteBlockConflictException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteDiffRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteDiffResult.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/mapper/NoteBlockMapper.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bugs.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteTagController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/TagController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteTagMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/model/NoteTag.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteTagDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteTagDiffRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteTagDiffResult.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteTagService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/service/TagService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/mapper/NoteTagMapper.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/mapper/TagMapper.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteBlockController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteBlockController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteBlockMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteBlockMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/NoteBlock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/NoteBlock.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/vo/Result.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/vo/Result.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/NotebookMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NotebookMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/TagMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/TagMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NotebookService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NotebookService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/NoteMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/mapper/NoteMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mapper/NoteMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mapper/NoteMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/NoteController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/controller/NoteController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/NotebookController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/controller/NotebookController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteBlockMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteBlockMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NotebookMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/mapper/NotebookMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/TagMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/mapper/TagMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/Note.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/Note.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/NoteBlock.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/NoteBlock.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/vo/Result.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/vo/Result.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NotebookService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NotebookService.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +51,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -64,14 +85,14 @@
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/WINDOWS/System32/OpenSSH/ssh.exe&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/pro/note_project/note_backbond/src/main/resources/mapper&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;onboarding.tips.debug.path&quot;: &quot;D:/pro/JavaProject/note_backbond/src/main/java/org/template/Main.java&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;web.server&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.tabs&quot;,
     &quot;spring.configuration.checksum&quot;: &quot;577a9fa75e97f0a0ec831cff8116c7ee&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
@@ -81,7 +102,16 @@
     ]
   }
 }</component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
   <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="org.template.service" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\pro\note_project\note_backbond\src\main\resources\mapper" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\pro\note_project\note_backbond\src\main\resources\mapper" />
     </key>
@@ -138,7 +168,23 @@
       <workItem from="1784601303566" duration="2488000" />
       <workItem from="1784685699059" duration="12382000" />
       <workItem from="1784710239960" duration="3705000" />
-      <workItem from="1784727206042" duration="1690000" />
+      <workItem from="1784727206042" duration="2354000" />
+      <workItem from="1784770459054" duration="27000" />
+      <workItem from="1784776568309" duration="2192000" />
+      <workItem from="1784778844315" duration="2942000" />
+      <workItem from="1784789905484" duration="4264000" />
+      <workItem from="1784875415586" duration="702000" />
+      <workItem from="1784879193579" duration="1324000" />
+      <workItem from="1784898338653" duration="6558000" />
+      <workItem from="1784968641185" duration="3120000" />
+      <workItem from="1785117376295" duration="544000" />
+      <workItem from="1785119118054" duration="3026000" />
+      <workItem from="1785141293020" duration="1410000" />
+      <workItem from="1785323690726" duration="1713000" />
+      <workItem from="1785330572217" duration="509000" />
+      <workItem from="1785375648873" duration="5789000" />
+      <workItem from="1785391160016" duration="25470000" />
+      <workItem from="1785484499261" duration="1344000" />
     </task>
     <task id="LOCAL-00001" summary="更新了笔记相关的">
       <option name="closed" value="true" />
@@ -170,22 +216,20 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-field">
-          <url>file://$PROJECT_DIR$/src/main/java/org/template/model/Notebook.java</url>
-          <line>25</line>
-          <properties field="name" class="org.template.model.Notebook" />
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-field">
-          <url>file://$PROJECT_DIR$/src/main/java/org/template/model/Notebook.java</url>
-          <line>31</line>
-          <properties field="sortOrder" class="org.template.model.Notebook" />
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/org/template/interceptor/JwtInterceptor.java</url>
           <line>80</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/template/controller/NoteTagController.java</url>
+          <line>57</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/template/service/NoteTagService.java</url>
+          <line>24</line>
+          <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

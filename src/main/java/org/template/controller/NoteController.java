@@ -38,7 +38,7 @@ public class NoteController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam int notebookId) {
-        PageResult<Note> result = noteService.getNotesByNotebookId(notebookId, page, size);
+        PageResult<Note> result = noteService.getNotesByNotebookId0(notebookId, page, size);
         if(result==null)
             return Result.error("笔记本为空");
         return Result.success("查询成功", result);
@@ -51,7 +51,7 @@ public class NoteController {
      * @param page       当前页码（默认 1）
      * @param size       每页条数（默认 10）
      */
-    @GetMapping("/listAll")
+    @GetMapping("/notes")
     public Result<PageResult<Note>> listNotesAll(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -61,10 +61,20 @@ public class NoteController {
         if (userId == null) {
             return Result.unauthorized("用户未登录");
         }
-        PageResult<Note> result = noteService.getNotesByUserId(userId, page, size);
+        PageResult<Note> result = noteService.getNotesByUserId0(userId, page, size);
         if(result==null)
             return Result.error("笔记本为空");
         return Result.success("查询成功", result);
+    }
+
+    @GetMapping("/getNote")
+    public Result<Note> getNote(
+            @RequestParam Integer noteId
+    ) {
+        Note note = noteService.getNoteWTags(noteId);
+        if(note==null)
+            return Result.error("笔记不存在");
+        return Result.success("查询成功", note);
     }
 
     /**
@@ -108,5 +118,37 @@ public class NoteController {
         // 增加新的修改时间的更新逻辑
         Note result = noteService.updateNoteWithOptLock(note);
         return result == null ? Result.error("笔记不存在") : Result.success(result);
+    }
+
+    @PostMapping("/summary")
+    public Result<Note> updateNoteSummary(
+            @RequestParam Integer noteId,
+            @RequestParam String summary,
+            @RequestParam Integer version) {
+        Note note = new Note();
+        note.setSummary(summary);
+        note.setId(noteId);
+        note.setVersion(version);
+        // 添加新的修改时间的更新逻辑
+        Note result = noteService.updateNoteWithOptLock(note);
+        return result == null ? Result.error("笔记不存在") : Result.success(result);
+    }
+
+    @PostMapping("/editNotebook")
+    public Result<String> updateNoteNoteBook(
+            @RequestParam Integer noteId,
+            @RequestParam Integer notebookId,
+            HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.unauthorized("用户未登录");
+        }
+        // 如果是notebookId=-1，就更新id为null
+        notebookId = notebookId == -1 ? null : notebookId;
+        if(noteService.updateNoteNotebook(noteId, notebookId, userId)){
+            return Result.success("修改成功");
+        }else{
+            return Result.error("修改失败,笔记无需移动");
+        }
     }
 }

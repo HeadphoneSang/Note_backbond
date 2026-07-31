@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.template.mapper.NoteTagMapper">
+
+    <insert id="insertBatchIgnores" >
+        INSERT IGNORE INTO note_tag (note_id, tag_id) VALUES
+        <foreach collection="noteTagList" item="item" separator=",">
+            (#{item.noteId}, #{item.tagId})
+        </foreach>
+    </insert>
+    <delete id="deleteBatch">
+        DELETE FROM note_tag WHERE (note_id, tag_id) in
+        <foreach item="item" collection="noteTagList" separator="," close=")" open="(" index="index">
+            (#{item.noteId}, #{item.tagId})
+        </foreach>
+    </delete>
+    <select id="selectByNoteTag" resultType="org.template.model.NoteTag">
+        select * from note_tag where (note_id, tag_id) in
+            <foreach item="item" collection="noteTagList" separator="," close=")" open="(" index="index">
+                (#{item.noteId}, #{item.tagId})
+            </foreach>
+    </select>
+</mapper>

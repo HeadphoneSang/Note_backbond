@@ -5,11 +5,13 @@
     <resultMap id="NoteWithTagsMap" type="org.template.model.Note">
         <id property="id" column="note_id" />
         <result property="title" column="notebook_title" />
+        <result property="notebookId" column="notebook_id" />
         <result property="summary" column="notebook_summary" />
         <result property="isMarked" column="notebook_is_marked" />
         <result property="sortOrder" column="notebook_sort_order"/>
         <result property="createdAt" column="notebook_created_at" />
         <result property="updatedAt" column="notebook_updated_at" />
+        <result property="version" column="note_version"/>
         <collection property="tags"
                     ofType="org.template.model.Tag"
                     notNullColumn="tag_id">
@@ -40,6 +42,15 @@
         WHERE n.user_id = #{userId}
           AND n.is_delete = 0
         ORDER BY n.sort_order DESC, n.created_at DESC
+    </select>
+    <select id="selectNoteWTagsByNoteId" resultMap="NoteWithTagsMap">
+        SELECT
+            n.id AS note_id, n.title AS notebook_title,n.is_marked AS notebook_is_marked ,n.summary AS notebook_summary, n.created_at AS notebook_created_at,n.updated_at AS notebook_updated_at, n.sort_order as notebook_sort_order,n.notebook_id AS notebook_id,n.version as note_version,
+            t.id AS tag_id, t.name AS tag_name, t.color AS tag_color
+        FROM note AS n
+                 LEFT JOIN note_tag AS nt ON n.id = nt.note_id
+                 LEFT JOIN tag AS t ON nt.tag_id = t.id
+        WHERE n.id = #{noteId}
     </select>
 
 </mapper>

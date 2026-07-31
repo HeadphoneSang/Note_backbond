@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.template.model.Note;
 import org.template.model.Notebook;
 import org.template.model.dto.AddNotebookRequest;
 import org.template.model.vo.PageResult;
@@ -11,6 +12,7 @@ import org.template.model.vo.Result;
 import org.template.service.NotebookService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 笔记本控制器 — 笔记本的增删改查
@@ -72,5 +74,20 @@ public class NotebookController {
 
         PageResult<Notebook> result = notebookService.getNotebooksByUserId(userId, page, size);
         return Result.success("查询成功", result);
+    }
+
+    /**
+     * 查询所有的笔记本的简略信息，根据用户的id
+     */
+    @GetMapping("/getNotebookList")
+    public Result<List<Notebook>> selectNoteListByName(HttpServletRequest request){
+        Integer userId = (Integer) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.unauthorized("用户未登录");
+        }
+        List<Notebook> list = notebookService.selectNotebookAbInfoByUserId(userId);
+        if (list.isEmpty())
+            return Result.error("用户没有笔记本");
+        return Result.success("查询成功", list);
     }
 }

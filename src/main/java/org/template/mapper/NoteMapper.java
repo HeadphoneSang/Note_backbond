@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.template.model.Note;
 import org.template.model.NoteBlock;
 
@@ -20,9 +22,26 @@ public interface NoteMapper extends BaseMapper<Note> {
 
     IPage<Note> selectNotePageWithTagsByUserId(Page<Note> page, @Param("userId") Integer userId);
 
-    Integer batchDeleteBlockWithOptLock(@Param("list") List<NoteBlock> list);
+    Note selectNoteWTagsByNoteId(@Param("noteId") Integer noteId);
 
-    Integer batchUpdateBlockWithOptLock(@Param("blocks") List<NoteBlock> blocks);
+    /**
+     * 获取笔记，并加锁
+     * @param noteId 笔记id
+     * @return 笔记
+     */
+    @Select("select * from note where id = #{noteId} FOR UPDATE")
+    Note selectNoteById(@Param("noteId") Integer noteId);
 
-    Integer batchInsertBlock(@Param("blocks") List<NoteBlock> blocks);
+    /**
+     * 原子性的操作：将笔记移动到指定笔记本,同时检查对应用户有米有该笔记本
+     * @param noteId 笔记id
+     * @param notebookId 笔记本的id
+     * @return 返回影响的行数，如果失败返回0
+     */
+    @Update("update note set notebook_id = #{notebookId} where id=#{noteId} and (#{notebookId} is null or exists(select 1 from notebook where id = #{notebookId} and user_id = #{userId}))")
+    Integer updateNoteNoteBook(
+            @Param("noteId") Integer noteId,
+            @Param("notebookId") Integer notebookId,
+            @Param("userId") Integer userId
+    );
 }
