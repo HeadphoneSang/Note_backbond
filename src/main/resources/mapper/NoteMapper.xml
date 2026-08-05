@@ -51,6 +51,7 @@
                  LEFT JOIN note_tag AS nt ON n.id = nt.note_id
                  LEFT JOIN tag AS t ON nt.tag_id = t.id
         WHERE n.id = #{noteId}
+          AND n.is_delete = 0
     </select>
 
 </mapper>

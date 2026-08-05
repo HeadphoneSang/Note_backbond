@@ -13,7 +13,7 @@ import org.template.model.vo.Result;
 import org.template.service.UserService;
 import org.template.util.JwtUtil;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 

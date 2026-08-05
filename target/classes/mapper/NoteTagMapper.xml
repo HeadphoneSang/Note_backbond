@@ -3,9 +3,9 @@
 <mapper namespace="org.template.mapper.NoteTagMapper">
 
     <insert id="insertBatchIgnores" >
-        INSERT IGNORE INTO note_tag (note_id, tag_id, updated_at) VALUES
+        INSERT IGNORE INTO note_tag (note_id, tag_id) VALUES
         <foreach collection="noteTagList" item="item" separator=",">
-            (#{item.noteId}, #{item.tagId}, #{item.updatedAt})
+            (#{item.noteId}, #{item.tagId})
         </foreach>
     </insert>
     <delete id="deleteBatch">

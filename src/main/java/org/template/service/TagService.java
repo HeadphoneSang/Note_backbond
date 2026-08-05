@@ -60,4 +60,8 @@ public class TagService {
         });
         return map;
     }
+
+    public boolean deleteByTagId(Integer tagId) {
+        return tagMapper.deleteById(tagId) > 0;
+    }
 }

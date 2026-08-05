@@ -106,7 +106,8 @@ public class NoteService {
      */
     public PageResult<Note> getNotesByUserId0(Integer userId, long current, long size) {
         Page<Note> page = new Page<>(current, size);
-        IPage<Note> result = noteMapper.selectPage(page, new LambdaQueryWrapper<Note>().eq(Note::getUserId, userId).orderByAsc(Note::getSortOrder).orderByDesc(Note::getUpdatedAt));
+        IPage<Note> result = noteMapper.selectPage(page, new LambdaQueryWrapper<Note>().eq(Note::getUserId, userId).eq(Note::getIsDelete, false).orderByAsc(Note::getSortOrder).orderByDesc(Note::getUpdatedAt));
+        System.out.println(result.getTotal());
         return extractTags4Notes(result);
     }
 
@@ -162,6 +163,45 @@ public class NoteService {
         }
 
         // 3. 返回最新数据（含新版本号）
+        return true;
+    }
+
+    /**
+     * 切换笔记收藏状态（乐观锁，返回更新后的完整 Note）
+     *
+     * @param noteId   笔记 ID
+     * @param isMarked 目标收藏状态
+     * @param version  当前版本号（乐观锁）
+     * @return 更新后的 Note（含最新版本号）
+     * @throws OptimisticLockException 乐观锁版本冲突
+     */
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public Note markNote(Integer noteId, boolean isMarked, Integer version) {
+        Note note = new Note();
+        note.setId(noteId);
+        note.setIsMarked(isMarked);
+        note.setVersion(version);
+        note.setUpdatedAt(LocalDateTime.now());
+        if (noteMapper.updateById(note) <= 0) {
+            throw new OptimisticLockException("Note版本发生变化，更新冲突，已撤回: " + noteId);
+        }
+        return noteMapper.selectById(noteId);
+    }
+
+    /**
+     * 软删除笔记（置 isDelete + deletedAt，乐观锁）
+     *
+     * @param noteId  笔记 ID
+     * @param version 当前版本号（乐观锁）
+     * @return 是否删除成功
+     * @throws OptimisticLockException 乐观锁版本冲突
+     */
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean deleteNote(Integer noteId, Integer version) {
+        LocalDateTime now = LocalDateTime.now();
+        if (noteMapper.deleteNoteWithOptLock(noteId, version, now) <= 0) {
+            throw new OptimisticLockException("Note版本发生变化，更新冲突，已撤回: " + noteId);
+        }
         return true;
     }
 }

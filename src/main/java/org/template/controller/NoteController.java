@@ -11,7 +11,7 @@ import org.template.model.vo.PageResult;
 import org.template.model.vo.Result;
 import org.template.service.NoteService;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
 
@@ -132,6 +132,25 @@ public class NoteController {
         // 添加新的修改时间的更新逻辑
         Note result = noteService.updateNoteWithOptLock(note);
         return result == null ? Result.error("笔记不存在") : Result.success(result);
+    }
+
+    @PostMapping("/mark")
+    public Result<Note> updateNoteMarked(
+            @RequestParam Integer noteId,
+            @RequestParam Boolean isMarked,
+            @RequestParam Integer version) {
+        Note result = noteService.markNote(noteId, isMarked, version);
+        return result == null ? Result.error("笔记不存在") : Result.success(result);
+    }
+
+    @PostMapping("/delete")
+    public Result<String> deleteNote(
+            @RequestParam Integer noteId,
+            @RequestParam Integer version) {
+        if (noteService.deleteNote(noteId, version)) {
+            return Result.success("删除成功");
+        }
+        return Result.error("删除失败");
     }
 
     @PostMapping("/editNotebook")

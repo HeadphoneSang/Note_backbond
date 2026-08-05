@@ -26,6 +26,8 @@ public class Note {
 
     private Boolean isMarked;
 
+    /** 逻辑删除（0=否 1=是）— 所有自动生成 SQL 自动过滤 is_delete = 0 */
+    @TableLogic
     private Boolean isDelete;
 
     private Integer sortOrder;

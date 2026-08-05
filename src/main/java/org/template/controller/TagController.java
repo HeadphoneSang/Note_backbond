@@ -1,16 +1,15 @@
 package org.template.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.template.model.Tag;
 import org.template.model.vo.Result;
 import org.template.service.TagService;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RestController
 @RequestMapping("tag")
@@ -18,6 +17,8 @@ public class TagController {
 
     @Autowired
     private TagService tagService;
+
+    private Lock lock = new ReentrantLock();
 
     @GetMapping("list")
     public Result<List<Tag>> list(HttpServletRequest request) {
@@ -49,5 +50,22 @@ public class TagController {
             return Result.success("创建成功", result);
         }
         return Result.error("创建失败, 不能创建重名标签");
+    }
+
+    @PostMapping("delete")
+    public Result<String> delete(HttpServletRequest request,@RequestParam Integer tagId) {
+        /*
+        POST /tag/delete
+        删除标签
+         */
+        Integer userId = (Integer) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.unauthorized("请先登录");
+        }
+        boolean result = tagService.deleteByTagId(tagId);
+        if (result) {
+            return Result.success("删除成功");
+        }
+        return Result.error("删除失败, 标签不存在");
     }
 }

@@ -1,6 +1,7 @@
 package org.template.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class EmailService {
 
     /** 发件人地址（从配置中读取） */
     @Autowired
-    private org.springframework.core.env.Environment env;
+    private Environment env;
 
     /**
      * 发送登录验证码
