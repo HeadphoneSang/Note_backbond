@@ -1,7 +1,11 @@
 package org.template.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.apache.ibatis.executor.BatchResult;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +14,8 @@ import org.template.mapper.NoteBlockMapper;
 import org.template.model.NoteBlock;
 import org.template.model.dto.NoteDiffRequest;
 
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,16 +24,40 @@ public class NoteBlockService {
     @Autowired
     private NoteBlockMapper blockMapper;
 
+    @Autowired
+    @Qualifier("sqlSessionTemplateBatch")
+    private SqlSessionTemplate sqlSessionTemplate;
+
     @Transactional(propagation = Propagation.NESTED, rollbackFor = Exception.class)
-    public void insertNoteBlocks(List<NoteBlock> blocks){
-        if (blockMapper.batchInsertBlock(blocks)< blocks.size())
-            throw new OptimisticLockException("批量插入笔记块失败,由用户修改了当前内容");
+    public void insertNoteBlocks(List<NoteBlock> blocks) {
+        if (blocks == null || blocks.isEmpty()) return;
+
+        try {
+            // 直接执行插入即可，若冲突会直接砸出 DuplicateKeyException
+            blockMapper.batchInsertBlock(blocks);
+        } catch (DuplicateKeyException e) {
+            // 1. 精确捕获唯一键冲突
+            // 2. 传入 e，保留原始异常堆栈信息
+            throw new OptimisticLockException("插入笔记 ID 冲突");
+        }
     }
 
 
-    public void updateNoteBlocks(List<NoteBlock> blocks){
-        if (blockMapper.batchUpdateBlockWithOptLock(blocks)< blocks.size())
-            throw new OptimisticLockException("批量更新笔记块出现冲突,由用户修改了当前内容");
+    public List<String> updateNoteBlocks(List<NoteBlock> blocks){
+        if (blocks==null || blocks.isEmpty())   return new ArrayList<>();
+        NoteBlockMapper batchMapper = sqlSessionTemplate.getMapper(NoteBlockMapper.class);
+        for (NoteBlock block : blocks) {
+            batchMapper.updateById(block);
+        }
+        List<BatchResult> results = sqlSessionTemplate.flushStatements();
+        int[] updatedCounts = results.get(0).getUpdateCounts();
+        List< String> failedBlockIds = new ArrayList<>();
+        for (int i = 0; i < updatedCounts.length; i++) {
+            int count = updatedCounts[i];
+            if (count ==0 || count == Statement.EXECUTE_FAILED)
+                failedBlockIds.add(blocks.get(i).getId());
+        }
+        return failedBlockIds;
     }
 
     public void deleteNoteBlocks(List<NoteBlock> blocks){

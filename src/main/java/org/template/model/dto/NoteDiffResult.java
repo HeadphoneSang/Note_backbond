@@ -21,4 +21,13 @@ public class NoteDiffResult {
         return !failUpdateBlocks.isEmpty() || !failDeletedBlocks.isEmpty() || !failCreatedBlocks.isEmpty();
     }
 
+    @Override
+    public String toString() {
+        return "NoteDiffResult{" +
+                "failUpdateBlocks=" + failUpdateBlocks +
+                ", failDeletedBlocks=" + failDeletedBlocks +
+                ", failCreatedBlocks=" + failCreatedBlocks +
+                '}';
+    }
+
 }

@@ -5,82 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="增加了全局REST拦截器">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/config/MinioConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/service/MinioService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bugs.md" beforeDir="false" afterPath="$PROJECT_DIR$/bugs.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NoteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/NotebookController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/TagController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/TagController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/interceptor/JwtInterceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/interceptor/JwtInterceptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/mapper/NoteMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/Note.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/Note.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/EmailService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/TagService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/TagService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteDiffResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteDiffResult.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/NoteMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/mapper/NoteMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/mapper/NoteBlockMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/mapper/NoteMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/mapper/NoteTagMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/mapper/TagMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/HelloController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/Main.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/config/GlobalExceptionHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/config/MyMetaObjectHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/config/PasswordEncoderConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/CaptchaController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/NoteBlockController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/NoteController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/NoteTagController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/NotebookController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/TagController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/UserController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/exceptions/NoteBlockConflictException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/exceptions/OptimisticLockException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/handler/JsonNodeTypeHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/interceptor/JwtInterceptor.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteBlockMapper.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteMapper.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NoteTagMapper.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/NotebookMapper.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/TagMapper.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/mapper/UserMapper.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/Note.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/NoteBlock.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/NoteTag.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/Notebook.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/Tag.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/AddNotebookRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/EmailLoginRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/LoginRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteDiffRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteDiffResult.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteTagDTO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteTagDiffRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteTagDiffResult.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/RegisterRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/SendEmailCodeRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/UpdateUserRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/vo/PageResult.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/vo/Result.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/EmailService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockBatchService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteTagService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NotebookService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/TagService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/UserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/util/JwtUtil.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/note_backbond-1.0-SNAPSHOT.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -232,7 +167,10 @@
       <workItem from="1785805734677" duration="4008000" />
       <workItem from="1785831730248" duration="937000" />
       <workItem from="1785841660086" duration="9963000" />
-      <workItem from="1785909596519" duration="2948000" />
+      <workItem from="1785909596519" duration="6208000" />
+      <workItem from="1785979097056" duration="3383000" />
+      <workItem from="1785982521083" duration="682000" />
+      <workItem from="1785983221548" duration="2867000" />
     </task>
     <task id="LOCAL-00001" summary="更新了笔记相关的">
       <option name="closed" value="true" />

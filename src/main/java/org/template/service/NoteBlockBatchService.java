@@ -48,15 +48,12 @@ public class NoteBlockBatchService {
         }
         // 处理增量更新事件
         if(!req.getUpdatedBlocks().isEmpty()){
-            try{
-                blockService.updateNoteBlocks(req.getUpdatedBlocks());
-            }catch (OptimisticLockException e){
-                // 获得没有更新成功的块的ids
-                List<NoteBlock> expectBlocks = new ArrayList<>(req.getUpdatedBlocks());
-                expectBlocks.forEach(block->block.setVersion(block.getVersion()+1));
-                Set<String> sucBlockIds = new HashSet<>(blockMapper.selectByIdAndVersion(expectBlocks));
-                List<String> failUpdateIds = req.getUpdatedBlocks().stream().map(NoteBlock::getId).filter(id ->!sucBlockIds.contains(id)).collect(Collectors.toList());
-                result.setFailUpdateBlocks(failUpdateIds);
+            List<String> failedBlockIds = blockService.updateNoteBlocks(req.getUpdatedBlocks());
+            if (!failedBlockIds.isEmpty()){
+                System.out.println("===========================");
+                System.out.println("更新冲突");
+                System.out.println("===========================");
+                result.setFailUpdateBlocks(failedBlockIds);
             }
         }
         // 处理删除事件
@@ -66,10 +63,11 @@ public class NoteBlockBatchService {
             }catch (OptimisticLockException e){
                 // 获得没有删除成功的块的ids
                 List<String> allIds = req.getDeletedBlocks().stream().map(NoteBlock::getId).collect(Collectors.toList());
-                List<String> failedBlockIds = blockMapper.selectBatchIds(allIds).stream().map(NoteBlock::getId).collect(Collectors.toList());
+                List<String> failedBlockIds = blockMapper.selectBatchIds(allIds).stream().map(NoteBlock::getId).toList();
                 result.setFailDeletedBlocks(failedBlockIds);
             }
         }
+        System.out.println(result.toString());
         return result;
     }
 }
