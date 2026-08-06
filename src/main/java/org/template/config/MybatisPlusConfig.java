@@ -9,6 +9,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * MyBatis‑Plus 配置 — 注册分页插件
@@ -26,9 +27,20 @@ public class MybatisPlusConfig {
         return interceptor;
     }
 
+    /**
+     * 1. 默认的 SqlSessionTemplate（SIMPLE 模式），供所有普通 Mapper 使用
+     */
+    @Primary
+    @Bean(name = "sqlSessionTemplate")
+    public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
+        return new SqlSessionTemplate(sqlSessionFactory, ExecutorType.SIMPLE);
+    }
+
+    /**
+     * 2. 专门用于批处理的 SqlSessionTemplate（BATCH 模式）
+     */
     @Bean(name = "sqlSessionTemplateBatch")
     public SqlSessionTemplate sqlSessionTemplateBatch(SqlSessionFactory sqlSessionFactory) {
-        // 创建一个专门用于 Batch 批处理的 SqlSessionTemplate
         return new SqlSessionTemplate(sqlSessionFactory, ExecutorType.BATCH);
     }
 

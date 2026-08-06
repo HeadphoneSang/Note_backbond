@@ -5,17 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="增加了全局REST拦截器">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/config/MinioConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/template/service/MinioService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/WebConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteDiffResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/model/dto/NoteDiffResult.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -170,7 +163,8 @@
       <workItem from="1785909596519" duration="6208000" />
       <workItem from="1785979097056" duration="3383000" />
       <workItem from="1785982521083" duration="682000" />
-      <workItem from="1785983221548" duration="2867000" />
+      <workItem from="1785983221548" duration="3497000" />
+      <workItem from="1786000462369" duration="2060000" />
     </task>
     <task id="LOCAL-00001" summary="更新了笔记相关的">
       <option name="closed" value="true" />

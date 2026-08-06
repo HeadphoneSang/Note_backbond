@@ -1,4 +1,4 @@
-package org.template;
+package org.template.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +38,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/email-login",
                         "/captcha",
                         "/hello",
-                        "/error"
+                        "/error",
+                        "/doc.html"
                 );
     }
 }

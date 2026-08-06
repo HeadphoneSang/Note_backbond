@@ -124,7 +124,10 @@ public class NoteService {
     public Note updateNoteWithOptLock(Note note) { 
         // 更新前将 updatedAt 设为当前时间
         note.setUpdatedAt(LocalDateTime.now());
-        if (noteMapper.updateById(note)<= 0){
+        int affectRow = noteMapper.updateById(note);
+        System.out.println(affectRow);
+        if (affectRow<= 0){
+            System.out.println("更新失败==================");
             throw new OptimisticLockException("Note版本发生变化，更新冲突，已撤回: "+note.getId());
         }
         return noteMapper.selectById(note.getId());
