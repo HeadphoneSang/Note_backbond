@@ -6,9 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="增加了全局REST拦截器">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/WebConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/MybatisPlusConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/redis-cache-design.md" beforeDir="false" afterPath="$PROJECT_DIR$/redis-cache-design.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,7 +164,8 @@
       <workItem from="1785979097056" duration="3383000" />
       <workItem from="1785982521083" duration="682000" />
       <workItem from="1785983221548" duration="3497000" />
-      <workItem from="1786000462369" duration="2060000" />
+      <workItem from="1786000462369" duration="13655000" />
+      <workItem from="1786077920987" duration="5175000" />
     </task>
     <task id="LOCAL-00001" summary="更新了笔记相关的">
       <option name="closed" value="true" />

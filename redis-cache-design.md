@@ -34,8 +34,6 @@
 ### 1.2 缺少的缓存能力
 
 - **业务数据缓存**：笔记内容、笔记列表、笔记本列表等高频读取数据无缓存
-- **本地缓存**：缺少 Caffeine 一级缓存，每次请求都穿透到 Redis 或 DB
-- **分布式锁**：NoteBlock 并发更新依赖乐观锁重试，缺少分布式互斥能力
 - **接口限流**：全部接口无速率限制，极端流量下无保护
 - **缓存预热**：启动时冷缓存，首个用户请求必然击穿到 DB
 
@@ -43,7 +41,7 @@
 
 ## 2. 缓存架构设计
 
-### 2.1 多级缓存架构（Caffeine + Redis 二级缓存）
+### 2.1 两层缓存架构（Redis + DB）
 
 ```
 ┌──────────────┐
@@ -51,57 +49,37 @@
 └──────┬───────┘
        │
 ┌──────▼───────┐    命中    ┌──────────────┐
-│  Caffeine    │ ────────→  │   直接返回    │
-│  (本地缓存)   │            └──────────────┘
-│  L1: 10~50ms │
-│  容量: 千级   │
-└──────┬───────┘
-       │ 未命中
-┌──────▼───────┐    命中    ┌──────────────┐
-│    Redis     │ ────────→  │  回写 L1 +    │
-│  (分布式缓存) │            │   返回结果     │
-│  L2: 1~5ms   │            └──────────────┘
+│    Redis     │ ────────→  │   直接返回     │
+│  (分布式缓存) │            └──────────────┘
+│  L1: 1~5ms   │
 │  容量: GB级   │
 └──────┬───────┘
        │ 未命中
 ┌──────▼───────┐
-│   MySQL DB   │ ────────→  回写 L1 + L2 + 返回
-│   L3: 10~50ms│
+│   MySQL DB   │ ────────→  回写 Redis + 返回
+│   L2: 10~50ms│
 └──────────────┘
 ```
+
+**为什么不引入 Caffeine 本地缓存（移除理由）**：
+
+1. **本项目是单实例部署**，Redis 本身延迟 ~1ms，本地缓存带来的边际收益极小；
+2. 多级缓存引入"各实例缓存不一致 + 失效无法广播"问题，复杂度远大于收益；
+3. Redis 宕机时用**限流 + DB 熔断**保护即可（见 4.3），不需要本地缓存兜底。
+
+结论：只保留 Redis 一层缓存，简单可靠。
 
 ### 2.2 依赖引入（pom.xml）
 
 ```xml
-<!-- Caffeine 本地缓存 -->
+<!-- Redis 连接池（已存在） -->
 <dependency>
-    <groupId>com.github.ben-manes.caffeine</groupId>
-    <artifactId>caffeine</artifactId>
-</dependency>
-
-<!-- Redisson 分布式锁 + 高级数据结构 -->
-<dependency>
-    <groupId>org.redisson</groupId>
-    <artifactId>redisson-spring-boot-starter</artifactId>
-    <version>3.22.1</version>
-</dependency>
-
-<!-- Spring Cache 抽象（可选，看团队偏好） -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-cache</artifactId>
-</dependency>
-
-<!-- Micrometer + Prometheus 监控 -->
-<dependency>
-    <groupId>io.micrometer</groupId>
-    <artifactId>micrometer-registry-prometheus</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-actuator</artifactId>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-pool2</artifactId>
 </dependency>
 ```
+
+> **注意：pom.xml 已移除 Caffeine、Redisson、Micrometer 等非必需依赖，只保留 Redis 相关。** 缓存读写统一用 `StringRedisTemplate` + JSON 序列化；互斥锁用简单 `SET NX EX` 实现（见 3.2），不引入 Redisson。
 
 ### 2.3 全局 Key 命名规范
 
@@ -109,12 +87,132 @@
 note_backbond:<业务域>:<实体类型>:<标识符>[:<子标识符>]
 
 示例：
-note_backbond:note:content:123          → 笔记内容
-note_backbond:note:list:user:456:page:1 → 用户笔记列表（分页）
-note_backbond:notebook:list:user:456    → 用户笔记本列表
-note_backbond:lock:note:123             → 笔记分布式锁
-note_backbond:rate:limit:ip:192.168.*   → IP 限流
+note_backbond:note:blocks:<noteId>       → 笔记全部块（Hash，field=块ID）
+note_backbond:note:list:user:456:page:1  → 用户笔记列表（分页）
+note_backbond:notebook:list:user:456     → 用户笔记本列表
+note_backbond:rate:limit:ip:192.168.*    → IP 限流
 ```
+
+### 2.4 Key 与 Lua 脚本的统一管理
+
+#### 2.4.1 Key 统一管理：一个 Key 目录，杜绝随处拼字符串
+
+企业项目不会把 `"note_backbond:note:blocks:"` 这类字面量散落在各 Service 里——一旦格式调整或拼错，会污染所有引用方且极难排查。统一做法是**用一个 `RedisKey` 枚举当"key 目录"**：所有 key 模板只在枚举里定义一次，业务侧通过 `build(...)` 生成，格式由 2.3 强制。
+
+```java
+/**
+ * Redis Key 目录：全项目唯一的 key 定义点。
+ * 统一格式：note_backbond:<业务域>:<实体类型>:<标识符>[:<子标识符>]
+ * 参数按 pattern 中的 %s 顺序由 build(...) 填充。
+ */
+public enum RedisKey {
+
+    // ---- 临时/安全（1.1 现有，保持口径一致）----
+    CAPTCHA      ("note_backbond:captcha:%s"),            // 图形验证码，参数 uuid
+    EMAIL_CODE   ("note_backbond:email:code:%s"),         // 邮箱验证码，参数 email
+    LOGIN_FAIL   ("note_backbond:login:fail:%s"),         // 登录失败计数，参数 account
+    LOGIN_LOCK   ("note_backbond:login:lock:%s"),         // 账号锁定，参数 account
+    LOGOUT_TOKEN ("note_backbond:logout:token:%s"),       // Token 注销黑名单
+
+    // ---- 业务缓存（3.x 各节）----
+    NOTE_BLOCKS  ("note_backbond:note:blocks:%s"),        // 笔记块 Hash，参数 noteId（3.1）
+    NOTE_LIST    ("note_backbond:note:list:user:%s:page:%s:size:%s"), // 笔记列表分页，参数 userId,page,size（3.2）
+    NOTEBOOK_LIST("note_backbond:notebook:list:user:%s"), // 笔记本列表，参数 userId（3.3）
+    USER_INFO    ("note_backbond:user:info:%s"),          // 用户信息，参数 userId（3.4）
+    TAG_LIST     ("note_backbond:tag:user:%s"),           // 标签列表，参数 userId（3.5）
+
+    // ---- 锁 / 限流 ----
+    PAGE_LOCK    ("note_backbond:lock:page:%s:%s"),       // 列表页互斥锁，参数 notebookId,userId（3.2）
+    RATE_LIMIT   ("note_backbond:rate:limit:%s"),         // 接口限流，参数 key（3.7）
+    ;
+
+    private final String pattern;
+
+    RedisKey(String pattern) { this.pattern = pattern; }
+
+    /** 按参数顺序填充，例如 RedisKey.NOTE_BLOCKS.build(100) -> "note_backbond:note:blocks:100" */
+    public String build(Object... args) {
+        return String.format(pattern, args);
+    }
+}
+```
+
+业务侧用法：
+
+```java
+String blocksKey = RedisKey.NOTE_BLOCKS.build(noteId);        // 替代 "note_backbond:note:blocks:" + noteId
+String pageLock  = RedisKey.PAGE_LOCK.build(notebookId, userId);
+```
+
+**好处**：
+- **一处定义**：改格式/前缀只动枚举，全项目生效；
+- **编译期纠错**：`build` 是方法，拼错枚举名编译不过，杜绝"手滑多打个冒号"这类 bug；
+- **自带目录**：枚举就是全量 key 清单，做监控、批量清理、核对 key 口径时一眼看全；
+- **TTL 同样集中**：单独一个常量类统一维护，避免各 Service 各写各的 TTL：
+
+```java
+public final class RedisTtl {
+    private RedisTtl() {}
+    public static final long NOTE_BLOCK     = 30;   // 分钟
+    public static final long NOTE_LIST_P1   = 5;    // 分钟（首页）
+    public static final long NOTE_LIST_PN   = 2;    // 分钟（翻页）
+    public static final long USER_INFO      = 30;   // 分钟
+    public static final long NOTEBOOK_LIST  = 10;   // 分钟
+    public static final long TAG_LIST       = 30;   // 分钟
+}
+```
+
+> 可选升级：再包一层 `RedisCacheService`（内部用 StringRedisTemplate + JSON + TTL），把"构建 key、GET/SET、过期"收敛到基础设施层；本项目用**枚举 + 直接调 StringRedisTemplate** 已足够。
+
+#### 2.4.2 Lua 脚本：Spring `RedisScript` Bean + classpath 脚本文件
+
+版本 CAS 这类"读-比较-写"必须是**原子脚本**，不要用 Java 先读后写。企业标准做法：Lua 脚本放 `src/main/resources/lua/`，用 `DefaultRedisScript` 注册成 Bean，执行时只传 key 和参数。
+
+```java
+@Configuration
+public class RedisConfig {
+
+    /** 版本 CAS 脚本（逻辑见 3.1.1）：确保落到缓存的一定是最新版本 */
+    @Bean
+    public RedisScript<Long> updateBlockScript() {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        script.setScriptSource(new ResourceScriptSource(
+                new ClassPathResource("lua/update_block.lua")));
+        script.setResultType(Long.class);   // Lua 返回 1/0
+        return script;
+    }
+}
+```
+
+资源目录：
+
+```
+src/main/resources/
+└── lua/
+    └── update_block.lua      # 版本 CAS 脚本，完整内容见 3.1.1
+```
+
+执行（业务侧封装）：
+
+```java
+@Autowired
+private RedisScript<Long> updateBlockScript;   // 按字段名注入，多脚本不冲突
+
+// KEYS 只传 hashKey，其余全走 ARGV（Redis Cluster 下保证 key 落在同一槽）
+private boolean luaCas(String hashKey, String blockId, String value,
+                       int version, String mode, boolean allowAbsent) {
+    Long r = stringRedisTemplate.execute(updateBlockScript,
+            List.of(hashKey),                          // KEYS[1]
+            blockId, value, version, mode, allowAbsent ? 1 : 0);   // ARGV[1..5]
+    return r != null && r == 1L;
+}
+```
+
+**注意点**：
+- **脚本外置**（`ClassPathResource("lua/xxx.lua")`）：改 Lua 逻辑不用改 Java、不用重新编译；
+- **`KEYS` 与 `ARGV` 严格区分**：key 放 `KEYS`，业务参数放 `ARGV`，不要把参数拼进 key 字符串——这是 Redis Cluster 下脚本能在同一槽执行的前提；
+- **结果类型**：`RedisScript<Long>`，脚本 `return 1/0`；
+- 多个 Lua 脚本就多注册几个 `@Bean`，一一对应 `lua/` 下的文件。
 
 ---
 
@@ -122,80 +220,330 @@ note_backbond:rate:limit:ip:192.168.*   → IP 限流
 
 ### 3.1 笔记内容缓存（最高优先级）
 
-**场景**：`GET /noteBlock/getBlocks`，读取笔记的所有 NoteBlock，是编辑器最核心的读取接口。
+#### 3.1.0 设计决策：每篇笔记一个 Redis Hash，写时打脏标记、读时懒回填
 
-**问题**：每次打开笔记都查询 `note_block` 表，同一个笔记被频繁打开，DB 重复查询。
+**背景**：`GET /noteBlock/getBlocks` 读取笔记全部块；`POST /noteBlock/batchUpdate` 是**增量更新**——比如 id=1 的笔记更新了 3 个块，SQL 只 UPDATE 这 3 行（`NoteBlockService.updateNoteBlocks` 走乐观锁 + 批量 UPDATE），而不是整篇重写。插入、删除也都是独立的批量事件。
 
-**设计方案**：
+**数据结构**：
+
+```
+note_backbond:note:blocks:<noteId>   Hash   field=块ID   value=块内容 JSON 或 脏标记 "version:N"
+```
+
+- 每篇笔记**一个 Hash key**，field 是块 ID（前端分配的 UUID）；
+- value 有两种：
+  - **块内容 JSON**：该块最近一次成功回填的数据（内含 `version` 乐观锁版本号）；
+  - **脏标记 `version:N`**：该块在 DB 已更新到版本 N，缓存还没回填 N 的数据（N 就是脏标记携带的版本号）；
+- 写路径不直接回填内容，只把变化的块置成脏标记（见 3.1.2）；
+- 读路径取回全部 field 后在**内存按 order_key 排序**（Hash 不保序，见 3.1.4）。
+
+**与其他方案对比**：
+
+| 维度 | 方式A：整篇缓存（1 个 key 存整篇 JSON 数组） | 方式B：逐块 key + 顺序索引 | 方式C：单 Hash + 版本号脏标记 ✅ |
+|------|------|------|------|
+| 写入失效 | 任意一块变化 → 删整篇 key | 只写变化的块 | 只把变化的块置脏标记（CAS），O(1) |
+| 编辑→关闭→重开 | 每次穿透 DB（编辑期间 key 反复被删） | 未变块仍命中，只重写变化块 | 未变块仍命中，只回填脏块 |
+| 并发正确性 | 删 key 天然安全 | 需处理写缓存顺序 | **版本 CAS，旧回填写不进去** |
+| Redis key 数量 | 1 篇 1 个 | 1 篇 ~21 个 | **1 篇 1 个** |
+| TTL 粒度 | 整篇 | 每块各自（易散落过期） | **整篇统一过期** |
+| 写路径 | 删 key | 序列化 + SET 块 | **CAS 置脏标记，零序列化** |
+| 读路径 | 1 次 GET | GET 索引 + MGET | HGETALL + CAS 回填脏块 + 内存排序 |
+
+**结论**：采用方式C，并对"打脏标记"做版本号 CAS 加固（见 3.1.1）——这是**唯一**能保证"缓存最终一定是最新内容"的写法。
+
+#### 3.1.1 竞态分析：为什么脏标记必须带版本号 + CAS
+
+**空串脏标记的缺陷**（不解决就会出现的竞态）：
+
+1. 线程A 更新块 → DB 到版本 2 → 缓存置脏标记（空串），A 退出；
+2. 线程B 读，发现脏 → 查 SQL 拿到版本 2 的数据，准备回填缓存；
+3. 线程C 又更新同一块 → DB 到版本 3 → 缓存置脏标记（空串），C 退出；
+4. 此刻 B 把版本 2 的数据写回缓存 → **覆盖了 C 的脏标记，缓存里存的是旧版本 2**；
+5. 之后所有读都命中"非脏"的旧数据，而 DB 已是版本 3 → 后续更新走乐观锁（基于版本 2）**全部失败**，该块被卡死直到缓存过期。
+
+**解决方案：脏标记携带版本号 + CAS 原子写入**
+
+- 脏标记 = `version:N`（N 为 DB 乐观锁版本），不再是空串；
+- **读回填条件**：`Redis.version <= DB.version` 才允许写入缓存（旧版本永远覆盖不了新版本）；
+- **写脏标记条件**：`DB.version > Redis.version` 才允许写入（避免把同版本真实数据降级成脏标记）；
+- 读版本 + 比较 + 写入在**同一个 Lua 脚本**里原子完成，杜绝"先读后写"的竞态窗口。
+
+```lua
+-- 版本 CAS：确保落到缓存的一定是最新版本
+-- KEYS[1]=hashKey  ARGV[1]=blockId  ARGV[2]=newValue  ARGV[3]=newVersion
+-- ARGV[4]=mode("data"/"dirty")  ARGV[5]=allowAbsent(0/1，仅 data 模式生效)
+-- 返回 1=写入成功  0=CAS 拒绝（缓存已有更新版本 / 块已删除）
+local cur = redis.call('HGET', KEYS[1], ARGV[1])
+local curVer = 0
+local absent = (cur == false)
+if not absent then
+    local dv = string.match(cur, '^version:(%d+)$')          -- 脏标记 version:N
+    if dv then
+        curVer = tonumber(dv)
+    else
+        local ok, obj = pcall(cjson.decode, cur)             -- 真实数据 JSON 里的 version
+        if ok and obj and obj.version then curVer = tonumber(obj.version) end
+    end
+end
+
+local newVer = tonumber(ARGV[3])
+if ARGV[4] == 'dirty' then
+    -- 写脏标记：field 不存在 = 新插入的块 → 写入；已存在 → DB 版本必须严格大于缓存版本
+    if absent or newVer > curVer then
+        redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
+        return 1
+    end
+else
+    -- 读回填：field 不存在时，仅冷启动全量回填（allowAbsent=1）允许写入；
+    -- 完整 Hash 上 field 不存在 = 块已删除 → 拒绝
+    if absent then
+        if tonumber(ARGV[5]) == 1 then
+            redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
+            return 1
+        end
+    elseif newVer >= curVer then
+        redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
+        return 1
+    end
+end
+return 0
+```
+
+> 语义约定：**field 不存在 = 块已删除/不存在**；**"没回填" = field 存在但 value 是 `version:N`**。下文代码里的 `luaCas(hashKey, blockId, newValue, newVersion, mode, allowAbsent)` 就是这段脚本的 Java 封装（返回 `true/false`）。`allowAbsent` 只对 `data` 模式生效：`false` = 完整 Hash 上 field 不存在即视为已删除，跳过；`true` = 冷启动全量回填，field 不存在视为还没写入，允许写入。
+
+**重放上面的竞态**：B 回填版本 2（expect=2）时，缓存当前是 C 写的脏标记 `version:3`（3）→ `2 >= 3` 不成立 → CAS 拒绝写入，B 的旧数据落不进缓存；缓存保持 `version:3`，下一次读用版本 3 回填。**最终缓存一定是最后一次更新的内容。**
+
+**为什么不用"延时双删"**：延时双删靠"删缓存 + 延迟 N 毫秒再删一次"兜底，两次删除之间旧回填仍可能写入，不一致窗口取决于延迟时间且依赖定时任务；版本 CAS 让旧回填**从机制上写不进去**，不一致窗口只有一次 CAS 往返，无定时任务、自愈更快。
+
+#### 3.1.2 写路径（batchUpdate）——版本 CAS 打脏标记
+
+在 `NoteBlockBatchService.updateNoteBlocksDiff` 现有 DB 逻辑**成功提交后**，按 diff 增量同步缓存：
 
 ```java
-// CacheAside 模式：读时回写，写时失效
-@Service
-public class NoteBlockCacheService {
+String hashKey = "note_backbond:note:blocks:" + noteId;
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+// 写路径不做 singleflight 串行（保证写操作完全并发，不被读回填阻塞）：
+// 更新/插入的竞态已由版本 CAS 兜住；删除的极窄边角用延时双删兜底（见 3.1.4）。
 
-    @Autowired
-    private CacheManager caffeineCacheManager; // Caffeine CacheManager
+// 0. 冷状态兜底：Hash 不存在时不能直接写块（会创建残缺 Hash），先打"创建中"占位，
+//    让下一次读触发全量回填（见 3.1.3）
+if (!redisTemplate.hasKey(hashKey)) {
+    redisTemplate.opsForHash().put(hashKey, "__creating__", "1");
+    redisTemplate.expire(hashKey, 30, TimeUnit.MINUTES);
+}
 
-    // 构建缓存 key
-    private String buildBlockCacheKey(Integer noteId) {
-        return "note_backbond:note:content:" + noteId;
+// ① 更新块：成功 → CAS 脏标记 version:N（N 为 DB 写入后的新版本号，乐观锁自增后的值）
+for (NoteBlock b : 成功更新的块) {
+    luaCas(hashKey, b.getId(), "version:" + b.getVersion(), b.getVersion(), "dirty", false);
+}
+// ② 插入块：成功 → CAS 脏标记 version:1（新块初始版本固定为 1，见 batchInsertBlock）
+for (NoteBlock b : 成功插入的块) {
+    luaCas(hashKey, b.getId(), "version:1", 1, "dirty", false);
+}
+// ③ 删除块：成功 → HDEL 该 field（field 消失，与 DB 删除同步）
+//    极端场景（冷启动回填并发删除）可用"延时双删"兜底：延迟 ~500ms 异步再 HDEL 一次
+for (NoteBlock b : 成功删除的块) {
+    redisTemplate.opsForHash().delete(hashKey, b.getId());
+}
+```
+
+**与 DB 增量更新的对应关系**：
+
+| diff 事件 | DB 操作 | 缓存操作 |
+|----------|---------|---------|
+| 更新块 | `UPDATE ... WHERE id AND version`（只更新变化行） | `luaCas` 脏标记 `version:N` |
+| 新增块 | `INSERT` | `luaCas` 脏标记 `version:1` |
+| 删除块 | `DELETE` | `HDEL` 该 field |
+
+**关键点**：
+
+1. **只标记成功的块**：乐观锁冲突（`failUpdateBlocks`）的块不碰缓存，保持旧值，客户端刷新重读即可；
+2. **脏标记 CAS 用严格 `>`**：若缓存已是同版本真实数据（罕见竞态），不降级、直接跳过；
+3. **写缓存失败兜底**：Lua/HDEL 失败重试一次；仍失败则 `DEL` 整个 Hash（保守降级，下次读全量回填）；DB 已提交结果不受影响；
+4. 若 DB 提交失败（事务回滚），不执行任何缓存同步，天然一致。
+
+**为什么写路径"打脏标记"而不是"直接回填内容"？**
+
+| | 打脏标记（推荐） | 直接回填 |
+|------|------|------|
+| 写路径开销 | CAS 置脏标记，O(1)，零序列化 | JSON 序列化整块 + HSET 内容 |
+| 与块 JSON 结构解耦 | 写路径不关心块长什么样 | 块结构变了写路径也要改 |
+| 连续编辑同一块 | 每次都只是 O(1) 标记 | 每次都序列化 |
+| 代价 | "编辑→重开"命中一次针对脏块 id 的主键小查询（`WHERE id IN (...)`，几百微秒） | 无 |
+
+结论：autosave 是最高频写路径，把序列化从写路径挪到读路径（回填时才序列化），写路径保持最轻；代价是重开时对脏块做一次主键小查询，对个人笔记场景无感知。
+
+#### 3.1.3 读路径（getBlocks）——脏块识别 + CAS 回填 + 失败自旋
+
+```java
+public List<NoteBlock> getNoteBlocks(Integer noteId) {
+    String hashKey = "note_backbond:note:blocks:" + noteId;
+    Map<Object, Object> hash = redisTemplate.opsForHash().entries(hashKey);
+
+    // 1. 冷启动 / 创建中（写路径打的占位）→ 单飞全量回填
+    if (hash.isEmpty() || hash.containsKey("__creating__")) {
+        return singleFlight(hashKey, () -> backfillAll(noteId));
     }
 
-    // 读：多级缓存读取
-    public List<NoteBlock> getNoteBlocks(Integer noteId) {
-        String cacheKey = buildBlockCacheKey(noteId);
+    // 2. 找出脏块（值以 "version:" 开头）
+    List<String> dirtyIds = hash.entrySet().stream()
+            .filter(e -> ((String) e.getValue()).startsWith("version:"))
+            .map(e -> (String) e.getKey()).toList();
+    if (dirtyIds.isEmpty()) {
+        return assembleSorted(hash, dirtyIds);
+    }
 
-        // 1. 尝试 Caffeine（本地缓存）
-        Cache<Object, Object> localCache = caffeineCacheManager.getCache("noteBlocks");
-        if (localCache != null) {
-            ValueWrapper wrapper = localCache.get(cacheKey);
-            if (wrapper != null) {
-                return (List<NoteBlock>) wrapper.get();
-            }
-        }
+    // 3. 单飞回填脏块：返回 SQL 查到的脏块数据（本次响应用它），并 CAS 回填缓存
+    List<NoteBlock> dirtyBlocks = singleFlight(hashKey,
+            () -> backfillFields(hashKey, dirtyIds));
 
-        // 2. 尝试 Redis（分布式缓存）
-        String json = redisTemplate.opsForValue().get(cacheKey);
-        if (StrUtil.isNotBlank(json)) {
-            List<NoteBlock> blocks = JSON.parseArray(json, NoteBlock.class);
-            // 回写本地缓存
-            localCache.put(cacheKey, blocks);
-            return blocks;
-        }
+    // 4. 干净块来自缓存 + 脏块来自 SQL，合并后按 order_key 排序返回
+    List<NoteBlock> all = assembleSorted(hash, dirtyIds);   // 跳过脏块
+    all.addAll(dirtyBlocks);
+    all.sort(Comparator.comparing(NoteBlock::getOrderKey));
+    return all;
+}
+```
 
-        // 3. 回源 DB（互斥锁防击穿）
-        List<NoteBlock> blocks = noteBlockService.selectNoteBlocks(noteId);
-        if (blocks != null) {
-            // 回写两级缓存
-            String jsonStr = JSON.toJSONString(blocks);
-            redisTemplate.opsForValue().set(cacheKey, jsonStr, 30, TimeUnit.MINUTES);
-            localCache.put(cacheKey, blocks);
-        }
+**冷启动回填（整篇，同样逐块 CAS）**：
+
+```java
+private List<NoteBlock> backfillAll(Integer noteId) {
+    String hashKey = "note_backbond:note:blocks:" + noteId;
+    List<NoteBlock> blocks = blockService.selectNoteBlocks(noteId); // 已 ORDER BY order_key
+    if (blocks.isEmpty()) {
+        // 空笔记：短 TTL 空标记，防穿透
+        redisTemplate.opsForHash().put(hashKey, "__empty__", "1");
+        redisTemplate.expire(hashKey, 60, TimeUnit.SECONDS);
         return blocks;
     }
+    for (NoteBlock b : blocks) {
+        // 逐块 CAS：冷启动是完整 Hash 的第一个写入方，field 不存在 = 还没写入（allowAbsent=true）；
+        // 若回填期间有并发写已打入更新的脏标记，CAS 自动跳过该块，不会覆盖
+        luaCas(hashKey, b.getId(), JSON.toJSONString(b), b.getVersion(), "data", true);
+    }
+    redisTemplate.opsForHash().delete(hashKey, "__creating__");   // 清占位
+    redisTemplate.expire(hashKey, 30, TimeUnit.MINUTES);
+    return blocks;   // 本次响应返回 SQL 快照
+}
+```
 
-    // 写：更新后立即失效缓存
-    public void evictNoteBlockCache(Integer noteId) {
-        String cacheKey = buildBlockCacheKey(noteId);
-        // 1. 先删除 Redis（作为分布式锁的协调者）
-        redisTemplate.delete(cacheKey);
-        // 2. 清除本地缓存（所有实例都需要清除，但无法广播，靠短过期时间兜底）
-        Cache<Object, Object> localCache = caffeineCacheManager.getCache("noteBlocks");
-        if (localCache != null) {
-            localCache.evict(cacheKey);
+**脏块回填（CAS + 失败自旋）**：
+
+```java
+private List<NoteBlock> backfillFields(String hashKey, List<String> dirtyIds) {
+    Map<String, NoteBlock> result = new LinkedHashMap<>();
+    List<String> pending = new ArrayList<>(dirtyIds);
+    for (int round = 0; round < 5 && !pending.isEmpty(); round++) {   // 自旋上限，防写风暴死循环
+        // 1. 查 SQL 拿脏块最新数据（含 DB 版本）
+        List<NoteBlock> blocks = blockMapper.selectBatchIds(pending);
+        Set<String> found = blocks.stream().map(NoteBlock::getId).collect(Collectors.toSet());
+        List<String> stillDirty = new ArrayList<>();
+        for (NoteBlock b : blocks) {
+            // 2. CAS 回填：完整 Hash 上 field 不存在 = 块已删除（allowAbsent=false）→ 跳过
+            boolean ok = luaCas(hashKey, b.getId(), JSON.toJSONString(b),
+                    b.getVersion(), "data", false);
+            if (ok) {
+                result.put(b.getId(), b);            // 写成功：本次响应用 SQL 快照
+                continue;
+            }
+            // CAS 失败 → 重查缓存判断
+            String cur = (String) redisTemplate.opsForHash().get(hashKey, b.getId());
+            if (cur == null) {
+                continue;                            // field 已不存在 = 块被并发删除，本次也不返回
+            }
+            if (cur.startsWith("version:")) {
+                stillDirty.add(b.getId());           // 缓存仍是更新的脏标记 → 下轮重查 SQL
+                result.put(b.getId(), b);            // 本次先用 SQL 快照（可接受的短暂旧值）
+            } else {
+                result.put(b.getId(), JSON.parseObject(cur, NoteBlock.class));  // 缓存有更新数据，直接用
+            }
         }
+        // DB 已不存在的脏 id（块被删除）→ HDEL，避免永远脏着
+        for (String id : pending) {
+            if (!found.contains(id)) redisTemplate.opsForHash().delete(hashKey, id);
+        }
+        pending = stillDirty;
+        if (!pending.isEmpty()) ThreadUtil.sleep(20);   // 退避后重试
+    }
+    return new ArrayList<>(result.values());            // 自旋耗尽也返回最后的 SQL 快照
+}
+```
+
+**组装（跳过脏块与标记字段，按 order_key 排序）**：
+
+```java
+private List<NoteBlock> assembleSorted(Map<Object, Object> hash, List<String> dirtyIds) {
+    Set<String> dirty = new HashSet<>(dirtyIds);
+    List<NoteBlock> blocks = new ArrayList<>();
+    for (Map.Entry<Object, Object> e : hash.entrySet()) {
+        String id = (String) e.getKey();
+        String json = (String) e.getValue();
+        if (dirty.contains(id)) continue;                       // 脏块由 SQL 数据提供
+        if (json == null || json.isEmpty()) continue;
+        if (json.startsWith("version:")) continue;              // 防御
+        if ("__creating__".equals(id) || "__empty__".equals(id)) continue;
+        blocks.add(JSON.parseObject(json, NoteBlock.class));
+    }
+    blocks.sort(Comparator.comparing(NoteBlock::getOrderKey));  // 等价于 SQL ORDER BY order_key
+    return blocks;
+}
+```
+
+**单飞（Singleflight）实现**：单实例部署用进程内 `ConcurrentHashMap`，不需要 Redis 分布式锁：
+
+```java
+private final ConcurrentHashMap<String, CompletableFuture<?>> loaders = new ConcurrentHashMap<>();
+
+private <T> T singleFlight(String key, Supplier<T> loader) {
+    CompletableFuture<T> future = new CompletableFuture<>();
+    CompletableFuture<T> existing = (CompletableFuture<T>) loaders.putIfAbsent(key, future);
+    if (existing != null) {
+        return existing.join();                     // 已有线程在加载，等它的结果
+    }
+    try {
+        T result = loader.get();
+        future.complete(result);
+        return result;
+    } catch (Throwable t) {
+        future.completeExceptionally(t);
+        throw t;
+    } finally {
+        loaders.remove(key);
     }
 }
 ```
 
-**缓存粒度**：按 `noteId` 缓存整个笔记的 NoteBlock 列表。
+> 单飞只用于**读路径**（冷启动/脏块回填），写路径不串行，保证写操作完全并发。若未来多实例部署，把读回填换成 Redis `SET NX EX` 互斥锁 + 双检即可（复用 3.2 的锁工具）。
 
-**TTL**：30 分钟（热点笔记会自动续期）。
+#### 3.1.4 完整性约束与冷启动
 
-**数据量估算**：一条笔记平均 20 个 block，每个 block ~500B，约 10KB/条。10 万条活跃笔记 ≈ 1GB Redis 内存。
+**完整性约束**（为什么读路径不会读到残缺数据）：Hash 的 field 集合始终 = DB 中该笔记现有块集合，靠以下规则保证：
+
+- Hash 由 `backfillAll` 全量创建，一次性写入全部 field；
+- **冷状态写路径不直接写块**，只打 `__creating__` 占位，读路径见到占位就全量回填——避免"写一个块 → Hash 只有它一个 field → 读路径误以为笔记只有一个块"；
+- 删除块的 HDEL 与 DB 删除同步，field 集合随之缩小；
+- 每个 field 的写入都过版本 CAS，旧版本不可能覆盖新版本。
+
+**冷启动与首次写入并发**：写路径在 Hash 不存在时打 `__creating__` 占位并对该块 CAS 脏标记；回填线程 SELECT 期间若有并发写，要么回填的 CAS 被更新的脏标记挡下，要么写的 CAS 脏标记覆盖旧回填——两种交错都收敛到最新版本，不会出现"回填了旧数据且无人知晓"的持久不一致。
+
+> **已知边角：冷启动回填 vs 并发删除**。语义上 field 不存在 = 块已删除（"没回填"是 field 存在但值为 `version:N`），`backfillFields`（allowAbsent=false）在完整 Hash 上遇到 field 不存在会跳过，因此**稳态的删除-回填竞态是安全的**；唯一残余在 `backfillAll` 冷启动（allowAbsent=true）：
+>
+> | 步骤 | 线程 | 动作 |
+> |---|---|---|
+> | 1 | 读者R | `getBlocks` → Hash 不存在 → 全量回填 → `SELECT` 快照含块 X@v2 |
+> | 2 | 写者W | 删除 X：DB `DELETE` 成功 → `HDEL hash X` |
+> | 3 | 读者R | CAS 写 X：`HGET` → nil → allowAbsent=true → **把 X 写回缓存（幽灵）** |
+> | 4 | 读者E | 读缓存 → 返回已删除的 X，直到 TTL 过期（~30min） |
+>
+> 概率极低（冷启动恰好与删除并发、且快照含该块），个人笔记单人编辑场景可忽略；若在多人协作等极端场景想再收窄，可对**删除操作**用**延时双删**兜底：`HDEL → 延迟 ~500ms（异步）→ 再 HDEL`，第二个 HDEL 落在并发回填完成之后，把可能写回的幽灵清掉。
+
+**为什么顺序不用 Redis ZSet / List**：`note_block.order_key` 是 `varchar(32)` 字典序字符串（`'n' / 'zz' / 'zzzz'`），ZSet 的 double score 放不下（需 ~150bit 精度）；Hash 本身不保序。所以读取时取回全部块后**在内存按 order_key 排序**（一篇 ≤50 块，开销可忽略），语义与 `ORDER BY order_key` 完全一致。
+
+#### 3.1.5 TTL 与内存估算
+
+- TTL 30min，**整篇 Hash 一起过期**（`EXPIRE` 作用于整个 key），不存在逐块散落过期问题；空笔记短 TTL 60s；
+- 内存：单块 JSON ~500B + Redis field 开销 ~50B ≈ 550B。10 万篇活跃笔记 × 20 块 ≈ 1.1GB，加每篇 1 个 Hash 的 key 开销（~10 万 × ~200B ≈ 20MB），与逐块方案基本持平，可接受。
 
 ---
 
@@ -251,6 +599,8 @@ public class NoteListCacheService {
 }
 ```
 
+> 互斥锁用简单 `SET NX EX` 实现的工具类即可（约 20 行），不引入 Redisson；竞争只发生在"同一列表首次回源"时，锁粒度按 `notebookId:userId`。
+
 **TTL**：首页 5 分钟，翻页 2 分钟（翻页数据变化容忍度高）。
 
 **失效时机**：笔记创建、删除、移动笔记本时，清除对应笔记本的列表缓存。
@@ -293,29 +643,26 @@ public List<Notebook> getNotebookList(Integer userId) {
 
 **现状**：JWT 拦截器每次请求都解析 token 获取 userId，但用户信息没有缓存。
 
-**设计方案**：
+**设计方案**（纯 Redis Cache Aside，不引入本地缓存）：
 
 ```java
 // 用户信息 30 分钟缓存
 // 注意：用户信息变更频率极低，但读取频率高（每次请求都可能用来校验权限）
 public User getUserInfo(Integer userId) {
     String cacheKey = "note_backbond:user:info:" + userId;
-    // 使用 Caffeine 本地缓存（用户信息的读多写少特性非常适合本地缓存）
-    return caffeineCache.get(cacheKey, key -> {
-        String json = redisTemplate.opsForValue().get(key);
-        if (json != null) {
-            return JSON.parseObject(json, User.class);
-        }
-        User user = userService.getUserInfo(userId);
-        if (user != null) {
-            redisTemplate.opsForValue().set(key, JSON.toJSONString(user), 30, TimeUnit.MINUTES);
-        }
-        return user;
-    });
+    String cached = redisTemplate.opsForValue().get(cacheKey);
+    if (cached != null) {
+        return JSON.parseObject(cached, User.class);
+    }
+    User user = userService.getUserInfo(userId);
+    if (user != null) {
+        redisTemplate.opsForValue().set(cacheKey, JSON.toJSONString(user), 30, TimeUnit.MINUTES);
+    }
+    return user;
 }
 ```
 
-**TTL**：30 分钟（本地缓存 5 分钟）。
+**TTL**：30 分钟。
 
 **失效时机**：更新用户信息、修改密码后立即清除。
 
@@ -360,50 +707,11 @@ public List<Tag> getUserTags(Integer userId) {
 
 ---
 
-### 3.6 笔记操作分布式锁（高优先级）
+### 3.6 并发编辑策略（已删除"分布式锁"方案）
 
-**场景**：`POST /noteBlock/batchUpdate` 并发更新同一个笔记的 NoteBlock。
+本项目**单实例部署、笔记由单人编辑**，`batchUpdate` 的并发冲突交给现有的**乐观锁 + 冲突回传重试**即可——`updateNoteBlocks` 返回失败的块 ID（`failUpdateBlocks`），客户端收到冲突后刷新重读，无需服务端加分布式锁。
 
-**问题**：当前的乐观锁机制在同一条笔记被多人同时编辑时，失败率很高。乐观锁 + 重试可以解决一部分问题，但大量冲突会导致"惊群效应"——大量请求同时失败重试，DB 压力飙升。
-
-**设计方案**：
-
-```java
-@Service
-public class NoteBlockBatchService {
-
-    @Autowired
-    private RedissonClient redissonClient;
-
-    public NoteDiffResult updateNoteBlocksDiff(NoteDiffRequest request) {
-        Integer noteId = extractNoteId(request);
-        String lockKey = "note_backbond:lock:note:" + noteId;
-        RLock lock = redissonClient.getLock(lockKey);
-
-        // 等待 3 秒，持有锁 10 秒（单个用户的操作通常 < 1 秒）
-        boolean acquired = lock.tryLock(3, 10, TimeUnit.SECONDS);
-        if (!acquired) {
-            throw new ServiceException("笔记正在被其他用户编辑，请稍后重试");
-        }
-
-        try {
-            // 执行批量差异更新
-            return doUpdateNoteBlocksDiff(request);
-        } finally {
-            // 释放锁 + 清除缓存
-            lock.unlock();
-            noteBlockCacheService.evictNoteBlockCache(noteId);
-        }
-    }
-}
-```
-
-**为什么不用数据库乐观锁就行**：乐观锁假设冲突少，但在多人协作编辑同一个笔记时，冲突概率高。大量冲突导致：
-1. 客户端频繁重试，用户体验差
-2. 重试请求堆积，DB 连接池被打满
-3. 无公平性保障，可能某个请求永远抢不到
-
-**分布式锁 + 阻塞等待**比乐观锁+重试更适合这种场景。
+结论：**不引入 Redisson 分布式锁**，保持依赖与复杂度最小。
 
 ---
 
@@ -562,8 +870,10 @@ public class HotKeyRefresher {
 // 1. TTL 添加随机偏移，防止集体过期
 long ttl = baseTtl + ThreadLocalRandom.current().nextLong(0, 300); // 基础 TTL + 0~5min 随机
 
-// 2. 本地缓存兜底（Caffeine 作为 Redis 宕机时的最后防线）
-// 即使 Redis 挂了，Caffeine 中的缓存还能扛住一部分流量
+// 2. Redis 宕机兜底：本项目不引入本地缓存（Caffeine），Redis 不可用时请求直接走 DB，
+//    靠下面两层保护 DB：
+//    a. 限流（3.7）：削减瞬时流量
+//    b. DB 熔断器：超过最大并发直接拒绝，保护 DB 不被击穿
 
 // 3. 限流降级（Redis 宕机时，DB 保护比功能完整更重要）
 @Component
@@ -596,24 +906,14 @@ public class DBCircuitBreaker {
 3. 删除是幂等操作，多次删除无副作用
 ```
 
-**最终一致性方案（延迟双删）**：
+**对本项目块缓存的落地**：单 Hash + **版本号脏标记**方案，一致性靠"**DB 先提交、缓存后 CAS 打标记、读时 CAS 回填**"：
 
-```java
-@Transactional
-public void updateNote(Note note) {
-    // 1. 先删除缓存
-    redisTemplate.delete(cacheKey);
+1. 脏标记携带 DB 乐观锁版本号（`version:N`），**所有缓存写入都过版本 CAS**——旧版本永远覆盖不了新版本，保证最终落到缓存的一定是最后一次更新的内容；
+2. 只标记**乐观锁成功**的块（冲突块保持旧缓存，客户端刷新重读）；
+3. 打标记/回填失败重试一次，仍失败 → 兜底 `DEL` 整个 Hash（下次读全量回填）；
+4. TTL 30min 作为最终一致性兜底，极端情况下短暂读到旧值也能自愈。
 
-    // 2. 更新 DB
-    noteMapper.updateById(note);
-
-    // 3. 延迟 N 毫秒后再删一次（解决并发读回写脏数据问题）
-    // 使用 MQ 或线程池异步执行
-    delayedDeleteCache(cacheKey, 500);
-}
-```
-
-**对于本项目**：当前架构是单服务部署，并发压力不大，**Cache Aside 的简单删除策略已足够**。延迟双删在后续多实例部署时再引入。
+> 延时双删在"先删缓存再写 DB + 并发读回写"下需要两次删除兜底，且两次删除之间旧回填仍可能写入，不一致窗口取决于延迟时间；版本 CAS 让旧回填**从机制上写不进去**，不一致窗口只有一次 CAS 往返，无定时任务、自愈更快。
 
 ---
 
@@ -627,76 +927,59 @@ maxmemory-policy allkeys-lru
 
 **理由**：笔记数据天然具有"热点"属性（最近编辑的笔记最常被读取），LRU 策略最适合。
 
-### 5.2 Caffeine 本地缓存配置
+### 5.2 Redis 客户端配置要点（Lettuce 连接池）
 
-```java
-@Configuration
-public class CacheConfig {
+不引入 Caffeine 后，缓存性能依赖 Redis 连接池与序列化配置：
 
-    @Bean
-    public CacheManager caffeineCacheManager() {
-        CaffeineCacheManager manager = new CaffeineCacheManager();
-        manager.setCaffeine(Caffeine.newBuilder()
-                .maximumSize(1000)                 // 最大 1000 条
-                .expireAfterWrite(5, TimeUnit.MINUTES)  // 写入后 5 分钟过期
-                .recordStats()                      // 记录命中率
-        );
-        manager.setCacheNames(Arrays.asList(
-                "noteBlocks", "noteList", "userInfo", "notebookList"
-        ));
-        return manager;
-    }
-}
+```yaml
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3s
+      lettuce:
+        pool:
+          max-active: 32        # 最大连接数
+          max-idle: 16
+          min-idle: 4
+          max-wait: 3s          # 获取连接超时
 ```
+
+> 序列化统一使用 `StringRedisTemplate` + JSON（本项目已用 Redis 做验证码等场景，沿用同一客户端），**不要用 JDK 序列化**（`JdkSerializationRedisSerializer`），避免类型兼容性问题与体积膨胀。
 
 ### 5.3 各场景缓存参数汇总
 
-| 缓存场景 | Redis TTL | Caffeine TTL | 最大容量 | 失效时机 |
-|----------|-----------|-------------|---------|---------|
-| 笔记内容 | 30min + 随机偏移 | 5min | 1000 条 | 笔记内容更新后 |
-| 笔记列表 | 首页5min/翻页2min | 3min | 500 条 | 创建/删除/移动笔记 |
-| 笔记本列表 | 10min | 5min | 200 条 | 创建/删除笔记本 |
-| 用户信息 | 30min | 5min | 500 条 | 更新用户信息 |
-| 标签列表 | 30min | 10min | 200 条 | 创建/删除标签 |
-| 空值标记 | 30~60s | 无 | 100 条 | 自动过期 |
+| 缓存场景 | Redis TTL | 最大容量 | 失效时机 |
+|----------|-----------|---------|---------|
+| 笔记块（单 Hash） | 30min + 随机偏移 | 按篇，无上限（受 LRU 约束） | 块更新/删除时 CAS 打脏标记，读时 CAS 回填 |
+| 笔记列表 | 首页5min/翻页2min | 500 条 | 创建/删除/移动笔记 |
+| 笔记本列表 | 10min | 200 条 | 创建/删除笔记本 |
+| 用户信息 | 30min | 500 条 | 更新用户信息 |
+| 标签列表 | 30min | 200 条 | 创建/删除标签 |
+| 空值标记 | 30~60s | 100 条 | 自动过期 |
 
 ---
 
 ## 6. 监控与可观测性
 
-### 6.1 缓存命中率监控
+首版**不引入 Micrometer / Prometheus 监控体系**（避免为缓存引入整套监控依赖），用轻量手段即可：
 
-```java
-@Component
-public class CacheMetrics {
+| 手段 | 说明 |
+|------|------|
+| Redis 原生监控 | `INFO memory`、`INFO stats`、`SLOWLOG`：观察内存、命中、慢命令 |
+| 应用日志打点 | 缓存读写处打日志（命中 / 未命中 / 回源），配合现有日志框架排查 |
+| 脏块回填计数 | 3.1 读路径检测到 `version:` 前缀脏标记触发回填，可计数后输出到日志 |
 
-    private final MeterRegistry meterRegistry;
-
-    // 记录缓存命中/未命中
-    public void recordHit(String cacheName) {
-        meterRegistry.counter("cache.hit", "cache", cacheName).increment();
-    }
-
-    public void recordMiss(String cacheName) {
-        meterRegistry.counter("cache.miss", "cache", cacheName).increment();
-    }
-
-    // 记录缓存大小
-    public void recordSize(String cacheName, long size) {
-        meterRegistry.gauge("cache.size", Tags.of("cache", cacheName), size);
-    }
-}
-```
-
-### 6.2 需要关注的指标
+需要关注的指标（通过上述手段观测）：
 
 | 指标 | 告警阈值 | 含义 |
 |------|---------|------|
-| `cache.hit.ratio` | < 80% | 缓存命中率过低，检查 TTL 设置 |
-| `cache.miss.count` | 突增 200% | 可能发生了缓存击穿/雪崩 |
-| `redis.memory.used` | > 80% | Redis 内存不足，检查 LRU 是否生效 |
-| `redis.commands.failed` | > 0 | Redis 连接异常，触发降级 |
-| `db.connections.active` | > 80% | DB 压力过大，缓存可能已失效 |
+| Redis 内存 | > 80% | 检查 LRU 是否生效 |
+| 回源比例 | 明显上升 | 缓存可能失效/穿透 |
+| DB 连接数 | > 80% | DB 压力过大，缓存可能已失效 |
+
+流量起来后再评估引入 Prometheus + Grafana。
 
 ---
 
@@ -705,8 +988,7 @@ public class CacheMetrics {
 | 优先级 | 场景 | 工作量 | 收益 | 说明 |
 |--------|------|--------|------|------|
 | P0 | 接口限流 | 小 | 保障系统稳定性 | 必须先做，防止被刷 |
-| P0 | 分布式锁 | 中 | 解决并发编辑冲突 | 核心用户体验 |
-| P1 | 笔记内容缓存 | 中 | 降低 NoteBlock 查询 90% | 最高频读取接口 |
+| P1 | 笔记内容缓存（Hash 逐块） | 中 | 降低 NoteBlock 查询 90% | 最高频读取接口，贴合增量更新 |
 | P1 | 笔记列表缓存 | 中 | 降低 LEFT JOIN 查询 80% | 最重查询 |
 | P2 | 笔记本列表缓存 | 小 | 降低查询 70% | 数据量小，实现简单 |
 | P2 | 用户信息缓存 | 小 | 降低查询 90% | 变更少，读取多 |
@@ -717,7 +999,7 @@ public class CacheMetrics {
 
 ### 推荐实施步骤
 
-**第一阶段（P0）**：限流 + 分布式锁 → 2 天
-**第二阶段（P1）**：笔记内容缓存 + 笔记列表缓存 → 3 天
+**第一阶段（P0）**：接口限流 → 1 天
+**第二阶段（P1）**：笔记内容缓存（Hash 逐块）+ 笔记列表缓存 → 3 天
 **第三阶段（P2）**：笔记本列表 + 用户信息 + 标签缓存 → 2 天
 **第四阶段（P3）**：防崩溃加固 + 监控告警 → 持续迭代

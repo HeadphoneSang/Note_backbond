@@ -43,6 +43,7 @@ public class NoteBlockService {
     }
 
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public List<String> updateNoteBlocks(List<NoteBlock> blocks){
         if (blocks==null || blocks.isEmpty())   return new ArrayList<>();
         NoteBlockMapper batchMapper = sqlSessionTemplate.getMapper(NoteBlockMapper.class);
@@ -73,21 +74,4 @@ public class NoteBlockService {
     public List<NoteBlock> selectNoteBlocks(Integer noteId){
         return blockMapper.selectList(new LambdaQueryWrapper<NoteBlock>().eq(NoteBlock::getNoteId, noteId).orderByAsc(NoteBlock::getOrderKey));
     }
-
-//    /**
-//     * 批量移动块的笔记id，如果移动后，发现有没有移动的块，就撤回
-//     * @param oldNoteId 旧笔记id
-//     * @param newNoteId 新笔记id
-//     * @return 移动是否成功
-//     */
-//    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-//    public boolean updateNoteBlockNoteId(Integer oldNoteId, Integer newNoteId){
-//        Integer updatedCount = blockMapper.updateBlockNoteId(oldNoteId, newNoteId);
-//        // 检查是否还有没有更新的块，如果没有就回滚事务
-//        List<String> notModifiedIds = blockMapper.selectIdsByNoteId(oldNoteId);
-//        if (!notModifiedIds.isEmpty()){
-//            throw new OptimisticLockException("移动笔记内容出错!已撤销");
-//        }
-//        return true;
-//    }
 }
