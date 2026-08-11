@@ -181,6 +181,16 @@ public class RedisConfig {
         script.setResultType(Long.class);   // Lua 返回 1/0
         return script;
     }
+
+    /** 写路径冷状态兜底（见 3.1.2）：原子续期 TTL / 补 __creating__ 占位，消除 hasKey→HSET 的过期竞态 */
+    @Bean
+    public RedisScript<Long> ensureCreatingScript() {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        script.setScriptSource(new ResourceScriptSource(
+                new ClassPathResource("lua/ensure_creating.lua")));
+        script.setResultType(Long.class);
+        return script;
+    }
 }
 ```
 
@@ -189,7 +199,8 @@ public class RedisConfig {
 ```
 src/main/resources/
 └── lua/
-    └── update_block.lua      # 版本 CAS 脚本，完整内容见 3.1.1
+    ├── update_block.lua      # 版本 CAS 脚本（读路径回填），完整内容见 3.1.1
+    └── ensure_creating.lua   # 写路径冷状态兜底：原子续期 TTL / 补 __creating__ 占位
 ```
 
 执行（业务侧封装）：
@@ -198,6 +209,9 @@ src/main/resources/
 @Autowired
 private RedisScript<Long> updateBlockScript;   // 按字段名注入，多脚本不冲突
 
+@Autowired
+private RedisScript<Long> ensureCreatingScript;
+
 // KEYS 只传 hashKey，其余全走 ARGV（Redis Cluster 下保证 key 落在同一槽）
 private boolean luaCas(String hashKey, String blockId, String value,
                        int version, String mode, boolean allowAbsent) {
@@ -205,6 +219,12 @@ private boolean luaCas(String hashKey, String blockId, String value,
             List.of(hashKey),                          // KEYS[1]
             blockId, value, version, mode, allowAbsent ? 1 : 0);   // ARGV[1..5]
     return r != null && r == 1L;
+}
+
+// 写标记前调用：原子保证 Hash 存在且带 __creating__ 占位/TTL（见 3.1.2）
+private void ensureCreating(String hashKey, long ttlSeconds) {
+    stringRedisTemplate.execute(ensureCreatingScript,
+            List.of(hashKey), ttlSeconds);             // KEYS[1] / ARGV[1]
 }
 ```
 
@@ -325,20 +345,24 @@ String hashKey = "note_backbond:note:blocks:" + noteId;
 // 写路径不做 singleflight 串行（保证写操作完全并发，不被读回填阻塞）：
 // 更新/插入的竞态已由版本 CAS 兜住；删除的极窄边角用延时双删兜底（见 3.1.4）。
 
-// 0. 冷状态兜底：Hash 不存在时不能直接写块（会创建残缺 Hash），先打"创建中"占位，
-//    让下一次读触发全量回填（见 3.1.3）
-if (!redisTemplate.hasKey(hashKey)) {
-    redisTemplate.opsForHash().put(hashKey, "__creating__", "1");
-    redisTemplate.expire(hashKey, 30, TimeUnit.MINUTES);
-}
+// 0. 冷状态兜底（原子）：
+//    Redis 的 Hash 有 TTL，直接用 hasKey 判断再 HSET 存在 TOCTOU 竞态——hasKey 返回 true 后、
+//    HSET 之前 key 恰好过期，会把"只含一个块的残缺 Hash"写进缓存（且没有 __creating__ 占位），
+//    读路径会误以为笔记只有这一个块。
+//    ensureCreating 用 Lua 原子地"续期 TTL / 补 __creating__ 占位"，保证后续标记落在
+//    "确定存在、TTL≥30min" 的 Hash 上（脚本见下方，说明见 3.1.4）：
+ensureCreating(hashKey, 30 * 60);
 
 // ① 更新块：成功 → CAS 脏标记 version:N（N 为 DB 写入后的新版本号，乐观锁自增后的值）
 for (NoteBlock b : 成功更新的块) {
     luaCas(hashKey, b.getId(), "version:" + b.getVersion(), b.getVersion(), "dirty", false);
 }
-// ② 插入块：成功 → CAS 脏标记 version:1（新块初始版本固定为 1，见 batchInsertBlock）
+// ② 插入块：成功 → data 模式直接写【完整块 JSON】（allowAbsent=true）。
+//    插入不走脏标记（方案 A）：新块数据已在请求里，直接落缓存省一次回填；
+//    前置 ensureCreating 保证 Hash 带 __creating__ 占位或已完整，绝不会创建"无占位 + 只有一块"的残缺 Hash
 for (NoteBlock b : 成功插入的块) {
-    luaCas(hashKey, b.getId(), "version:1", 1, "dirty", false);
+    b.setVersion(1);   // 新插入块 DB 版本固定 1（见 batchInsertBlock），缓存数据同步
+    luaCas(hashKey, b.getId(), JSON.toJSONString(b), 1, "data", true);
 }
 // ③ 删除块：成功 → HDEL 该 field（field 消失，与 DB 删除同步）
 //    极端场景（冷启动回填并发删除）可用"延时双删"兜底：延迟 ~500ms 异步再 HDEL 一次
@@ -347,12 +371,27 @@ for (NoteBlock b : 成功删除的块) {
 }
 ```
 
+`ensure_creating.lua` 内容：
+
+```lua
+-- 原子保证：写标记前 Hash 一定存在且带 __creating__ 占位/TTL，消除 hasKey→HSET 的过期竞态
+-- KEYS[1]=hashKey  ARGV[1]=ttl（秒）
+redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))   -- 已存在 → 续期（不存在的 key 是 no-op）
+if redis.call('EXISTS', KEYS[1]) == 0 then          -- 真不存在 → 补占位
+    redis.call('HSET', KEYS[1], '__creating__', '1')
+    redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))
+end
+return 1
+```
+
+> 原理：`EXPIRE` 对不存在的 key 是 no-op；先续期、再判断、再补占位都在一个原子脚本里。执行后 Hash 要么刚被创建（带 `__creating__`），要么被续期到 ≥30min，随后的 `luaCas` 标记操作落在这个确定存在、不会马上过期的 Hash 上。
+
 **与 DB 增量更新的对应关系**：
 
 | diff 事件 | DB 操作 | 缓存操作 |
 |----------|---------|---------|
 | 更新块 | `UPDATE ... WHERE id AND version`（只更新变化行） | `luaCas` 脏标记 `version:N` |
-| 新增块 | `INSERT` | `luaCas` 脏标记 `version:1` |
+| 新增块 | `INSERT` | `luaCas` data 写完整块 JSON（allowAbsent=true，前置 ensureCreating） |
 | 删除块 | `DELETE` | `HDEL` 该 field |
 
 **关键点**：
@@ -372,6 +411,8 @@ for (NoteBlock b : 成功删除的块) {
 | 代价 | "编辑→重开"命中一次针对脏块 id 的主键小查询（`WHERE id IN (...)`，几百微秒） | 无 |
 
 结论：autosave 是最高频写路径，把序列化从写路径挪到读路径（回填时才序列化），写路径保持最轻；代价是重开时对脏块做一次主键小查询，对个人笔记场景无感知。
+
+> 例外：**插入块不走脏标记，直接写完整数据**（见 3.1.2 ②）——插入低频且新块数据在请求里已是全量，直接落缓存省一次回填；更新/重排仍打脏标记（autosave 高频，省序列化）。注意：插入的 `data` 写必须**前置 `ensureCreating`**，否则 Hash 过期时 `HSET` 会创建"无 `__creating__` 占位 + 只有一块"的残缺 Hash。
 
 #### 3.1.3 读路径（getBlocks）——脏块识别 + CAS 回填 + 失败自旋
 
@@ -521,7 +562,7 @@ private <T> T singleFlight(String key, Supplier<T> loader) {
 **完整性约束**（为什么读路径不会读到残缺数据）：Hash 的 field 集合始终 = DB 中该笔记现有块集合，靠以下规则保证：
 
 - Hash 由 `backfillAll` 全量创建，一次性写入全部 field；
-- **冷状态写路径不直接写块**，只打 `__creating__` 占位，读路径见到占位就全量回填——避免"写一个块 → Hash 只有它一个 field → 读路径误以为笔记只有一个块"；
+- **冷状态写路径不直接写块**，通过 `ensureCreating`（Lua 原子）打 `__creating__` 占位，读路径见到占位就全量回填——避免"写一个块 → Hash 只有它一个 field → 读路径误以为笔记只有一个块"。原子性很关键：若用 `hasKey` 判断再 HSET，Hash 可能在判断后、写入前过期，产生**没有占位的残缺 Hash**（见 3.1.2）；
 - 删除块的 HDEL 与 DB 删除同步，field 集合随之缩小；
 - 每个 field 的写入都过版本 CAS，旧版本不可能覆盖新版本。
 

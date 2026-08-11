@@ -7,8 +7,27 @@
     <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="增加了全局REST拦截器">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/redis-cache-design.md" beforeDir="false" afterPath="$PROJECT_DIR$/redis-cache-design.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/RedisConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/CaptchaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/CaptchaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/enums/RedisKey.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/enums/RedisKey.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/BlockRedisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/BlockRedisService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/lua/update_block.lua" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/lua/update_block.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/WebConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/CaptchaController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/controller/CaptchaController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/controller/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteDiffResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteDiffResult.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockBatchService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockBatchService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/UserService.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +81,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.build&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;spring.configuration.checksum&quot;: &quot;577a9fa75e97f0a0ec831cff8116c7ee&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
@@ -165,7 +184,13 @@
       <workItem from="1785982521083" duration="682000" />
       <workItem from="1785983221548" duration="3497000" />
       <workItem from="1786000462369" duration="13655000" />
-      <workItem from="1786077920987" duration="5175000" />
+      <workItem from="1786077920987" duration="5530000" />
+      <workItem from="1786092702956" duration="4000" />
+      <workItem from="1786092718310" duration="9000" />
+      <workItem from="1786093250598" duration="5294000" />
+      <workItem from="1786325752749" duration="15461000" />
+      <workItem from="1786350097953" duration="8807000" />
+      <workItem from="1786373391812" duration="11692000" />
     </task>
     <task id="LOCAL-00001" summary="更新了笔记相关的">
       <option name="closed" value="true" />

@@ -22,6 +22,9 @@ public class NoteBlockBatchService {
     @Autowired
     private NoteBlockService blockService;
 
+    @Autowired
+    private BlockRedisService blockRedisService;
+
     /**
      * 传入要插入的块的id集合，返回没有插入成功的id集合
      * @param allIds 所有的插入的id集合
@@ -46,15 +49,32 @@ public class NoteBlockBatchService {
                 result.setFailCreatedBlocks(notExistIds);
             }
         }
+        if(!req.getInsertedBlocks().isEmpty() && result.getFailCreatedBlocks().isEmpty()){
+            // 没有插入失败的，就是全部插入成功，更新redis
+            System.out.println("缓存插入redis:"+req.getInsertedBlocks().size());
+            int noteId = req.getInsertedBlocks().get(0).getNoteId();
+            blockRedisService.cacheNewBlocks(noteId,req.getInsertedBlocks());
+        }
         // 处理增量更新事件
+        List<NoteBlock> updatedBlocks = req.getUpdatedBlocks();
         if(!req.getUpdatedBlocks().isEmpty()){
-            List<String> failedBlockIds = blockService.updateNoteBlocks(req.getUpdatedBlocks());
+//            System.out.println("批量更新前的versions:");
+//            System.out.println(req.getUpdatedBlocks().stream().map(NoteBlock::getVersion).toList());
+            final List<String> failedBlockIds = blockService.updateNoteBlocks(req.getUpdatedBlocks());
+//            System.out.println("批量更新后的versions:");
+//            System.out.println(req.getUpdatedBlocks().stream().map(NoteBlock::getVersion).toList());
             if (!failedBlockIds.isEmpty()){
-                System.out.println("===========================");
-                System.out.println("更新冲突");
-                System.out.println("===========================");
                 result.setFailUpdateBlocks(failedBlockIds);
+                updatedBlocks = updatedBlocks.stream().filter(noteBlock -> !failedBlockIds.contains(noteBlock.getId())).toList();
             }
+        }
+//        System.out.println("需要缓存的updatedBlocks的versions:");
+//        System.out.println(updatedBlocks.stream().map(NoteBlock::getVersion).toList());
+        if(!updatedBlocks.isEmpty()){
+            // 更新redis
+            System.out.println("缓存更新redis:"+updatedBlocks.size());
+            int noteId = updatedBlocks.get(0).getNoteId();
+            blockRedisService.dirtyBlocks(noteId,updatedBlocks);
         }
         // 处理删除事件
         if(!req.getDeletedBlocks().isEmpty()){
@@ -67,7 +87,12 @@ public class NoteBlockBatchService {
                 result.setFailDeletedBlocks(failedBlockIds);
             }
         }
-        System.out.println(result.toString());
+        if(!req.getDeletedBlocks().isEmpty() &&result.getFailDeletedBlocks().isEmpty()){
+            //  删除没有错误，全删除，更新redis
+            int noteId = req.getDeletedBlocks().get(0).getNoteId();
+            System.out.println("删除缓存:"+req.getDeletedBlocks().size());
+            blockRedisService.deleteBlocks(noteId,req.getDeletedBlocks());
+        }
         return result;
     }
 }

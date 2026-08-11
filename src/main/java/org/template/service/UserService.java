@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.template.enums.RedisKey;
 import org.template.mapper.UserMapper;
 import org.template.model.User;
 import org.template.model.dto.LoginRequest;
@@ -51,18 +52,6 @@ public class UserService {
     /** 账号锁定时间（分钟） */
     private static final int LOCK_DURATION_MINUTES = 15;
 
-    /** 失败计数 Redis Key 前缀 */
-    private static final String LOGIN_FAIL_PREFIX = "login:fail:account:";
-
-    /** 锁定状态 Redis Key 前缀 */
-    private static final String LOGIN_LOCK_PREFIX = "login:lock:account:";
-
-    /** 验证码 Redis Key 前缀 */
-    private static final String CAPTCHA_PREFIX = "captcha:";
-
-    /** 邮箱验证码 Redis Key 前缀 */
-    private static final String EMAIL_CODE_PREFIX = "email:code:";
-
     /** 邮箱验证码有效期（分钟） */
     private static final int EMAIL_CODE_TTL_MINUTES = 5;
 
@@ -94,7 +83,7 @@ public class UserService {
             throw new IllegalArgumentException("验证码不能为空");
         }
 
-        String redisCaptchaKey =CAPTCHA_PREFIX + req.getCaptchaKey();
+        String redisCaptchaKey = RedisKey.CAPTCHA.build(req.getCaptchaKey());
         String realCaptchaCode = stringRedisTemplate.opsForValue().get(redisCaptchaKey);
         stringRedisTemplate.delete(redisCaptchaKey);
 
@@ -145,11 +134,11 @@ public class UserService {
         }
 
         String account = req.getAccount().trim();
-        String lockKey = LOGIN_LOCK_PREFIX + account;
-        String failKey = LOGIN_FAIL_PREFIX + account;
+        String lockKey = RedisKey.LOGIN_LOCK.build(account);
+        String failKey = RedisKey.LOGIN_FAIL.build(account);
 
         // 2. 校验验证码（优先于账号锁定检查，避免泄露账号状态）
-        String redisKey = CAPTCHA_PREFIX + req.getCaptchaKey();
+        String redisKey = RedisKey.CAPTCHA.build(req.getCaptchaKey());
         String storedCode = stringRedisTemplate.opsForValue().get(redisKey);
         // 无论校验成功还是失败，验证码都立即失效（一次性使用）
         stringRedisTemplate.delete(redisKey);
@@ -306,7 +295,7 @@ public class UserService {
         }
 
         // 2. 检查是否在重发冷却期内
-        String codeKey = EMAIL_CODE_PREFIX + email;
+        String codeKey = RedisKey.EMAIL_CODE.build(email);
         String ttlKey = codeKey + ":ttl";
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(ttlKey))) {
             long remaining = stringRedisTemplate.getExpire(ttlKey, TimeUnit.SECONDS);
@@ -345,7 +334,7 @@ public class UserService {
         }
 
         // 2. 从 Redis 获取验证码
-        String codeKey = EMAIL_CODE_PREFIX + email;
+        String codeKey = RedisKey.EMAIL_CODE.build(email);
         String realCode = stringRedisTemplate.opsForValue().get(codeKey);
         // 一次性使用，立即删除
         stringRedisTemplate.delete(codeKey);

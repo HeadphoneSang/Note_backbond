@@ -106,7 +106,7 @@ public class NoteService {
      */
     public PageResult<Note> getNotesByUserId0(Integer userId, long current, long size) {
         Page<Note> page = new Page<>(current, size);
-        IPage<Note> result = noteMapper.selectPage(page, new LambdaQueryWrapper<Note>().eq(Note::getUserId, userId).eq(Note::getIsDelete, false).orderByAsc(Note::getSortOrder).orderByDesc(Note::getUpdatedAt));
+        IPage<Note> result = noteMapper.selectPage(page, new LambdaQueryWrapper<Note>().eq(Note::getUserId, userId).orderByAsc(Note::getSortOrder).orderByDesc(Note::getUpdatedAt));
         System.out.println(result.getTotal());
         return extractTags4Notes(result);
     }

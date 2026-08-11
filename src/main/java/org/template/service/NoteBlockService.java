@@ -6,6 +6,8 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,10 @@ public class NoteBlockService {
     @Qualifier("sqlSessionTemplateBatch")
     private SqlSessionTemplate sqlSessionTemplate;
 
-    @Transactional(propagation = Propagation.NESTED, rollbackFor = Exception.class)
+    @Autowired
+    private BlockRedisService blockRedisService;
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void insertNoteBlocks(List<NoteBlock> blocks) {
         if (blocks == null || blocks.isEmpty()) return;
 
@@ -61,6 +66,7 @@ public class NoteBlockService {
         return failedBlockIds;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = Exception.class)
     public void deleteNoteBlocks(List<NoteBlock> blocks){
         if (blockMapper.batchDeleteBlockWithOptLock( blocks)< blocks.size())
             throw new OptimisticLockException("批量删除笔记块出现冲突,由用户修改了当前内容");
@@ -72,6 +78,10 @@ public class NoteBlockService {
      * @return 返回块集合
      */
     public List<NoteBlock> selectNoteBlocks(Integer noteId){
-        return blockMapper.selectList(new LambdaQueryWrapper<NoteBlock>().eq(NoteBlock::getNoteId, noteId).orderByAsc(NoteBlock::getOrderKey));
+        return blockRedisService.getNoteBlocks(
+                noteId,
+                ()->blockMapper.selectList(new LambdaQueryWrapper<NoteBlock>().eq(NoteBlock::getNoteId, noteId).orderByAsc(NoteBlock::getOrderKey)),
+                (dirtyIds)->blockMapper.selectByIds(dirtyIds)
+                );
     }
 }

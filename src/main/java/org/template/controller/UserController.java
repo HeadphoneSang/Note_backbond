@@ -3,6 +3,7 @@ package org.template.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.template.enums.RedisKey;
 import org.template.model.User;
 import org.template.model.dto.LoginRequest;
 import org.template.model.dto.RegisterRequest;
@@ -32,9 +33,6 @@ public class UserController {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
-    /** Redis 中存储已注销 token 的 Set 的 key */
-    private static final String LOGOUT_TOKEN_SET_KEY = "logout:token";
 
     /**
      * 用户注册
@@ -79,8 +77,8 @@ public class UserController {
         String token = authHeader.substring(7);
 
         // 将 token 加入登出黑名单 Set，并设置 TTL = token 最大过期时间
-        stringRedisTemplate.opsForSet().add(LOGOUT_TOKEN_SET_KEY, token);
-        stringRedisTemplate.expire(LOGOUT_TOKEN_SET_KEY, jwtUtil.getExpirationTime(), TimeUnit.MILLISECONDS);
+        stringRedisTemplate.opsForSet().add(RedisKey.LOGOUT_TOKEN.toString(), token);
+        stringRedisTemplate.expire(RedisKey.LOGOUT_TOKEN.toString(), jwtUtil.getExpirationTime(), TimeUnit.MILLISECONDS);
 
         return Result.success("退出登录成功");
     }
@@ -99,7 +97,7 @@ public class UserController {
         }
 
         // 检查 token 是否已被登出
-        Boolean isLoggedOut = stringRedisTemplate.opsForSet().isMember(LOGOUT_TOKEN_SET_KEY, token);
+        Boolean isLoggedOut = stringRedisTemplate.opsForSet().isMember(RedisKey.LOGOUT_TOKEN.toString(), token);
         if (Boolean.TRUE.equals(isLoggedOut)) {
             return Result.unauthorized("令牌已失效，请重新登录");
         }
