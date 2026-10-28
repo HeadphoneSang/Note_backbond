@@ -2,7 +2,7 @@
 -- KEYS[1]=hashKey  ARGV[1]=blockId  ARGV[2]=newValue  ARGV[3]=newVersion
 -- ARGV[4]=mode("data"/"dirty")  ARGV[5]=allowAbsent(0/1，仅 data 模式生效)
 -- 返回 1=写入成功  0=CAS 拒绝（缓存已有更新版本 / 块已删除）
--- 使用示例：call(RedisKey.NOTEBLOCKs.bluid(...),dirty_blockId,newVer,dirty,0) 更新redis对应的块为脏
+-- 使用示例：call(RedisKey.NOTEBLOCKs.bluid(...),dirty_blockId,"version:x.x|data",newVer,dirty,0) 更新redis对应的块为脏
 local cur = redis.call('HGET', KEYS[1], ARGV[1])
 local curVer = 0
 local absent = (cur == false)
@@ -20,12 +20,12 @@ end
 
 if ARGV[4] == 'dirty' then
     -- 写脏标记：快存在，新的版本大于旧版本，允许覆盖脏标记
-    if (not absent) and (newVer > curVer) then
+    if (not absent) and (newVer >= curVer) then
         redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
         return 1
     -- 写脏标记的时候，如果块不存在，一定是被删除了，不可能是新的快，因为新的块不走脏标记，直接通过data插入。
     -- 而且删除肯定是最新操作，如果删除不是最新操作，那么对应的更新版本的更新不可能发生，因为有数据库的乐观锁兜底，所以返回0
-    elseif absent
+    elseif absent then
         return 0
     end
 else

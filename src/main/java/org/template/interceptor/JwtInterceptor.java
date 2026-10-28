@@ -1,8 +1,10 @@
 package org.template.interceptor;
 
+import org.apache.ibatis.javassist.util.proxy.MethodHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.template.util.JwtUtil;
 
@@ -28,7 +30,6 @@ public class JwtInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
-
         // 放行 OPTIONS 请求（CORS 预检）
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;

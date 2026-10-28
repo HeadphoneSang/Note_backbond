@@ -51,17 +51,6 @@ public class BlockRedisService {
     private final String singleDirtyQueryKey = "dirtyBlocks:%d";
     private final ConcurrentHashMap<String,CompletableFuture<?>> futureQueries = new ConcurrentHashMap<>();
 
-    @PostConstruct
-    public void testRedis(){
-        redisTemplate.opsForValue()
-                .set("test:key", "hello");
-
-        System.out.println(
-                redisTemplate.opsForValue()
-                        .get("test:key")
-        );
-    }
-
     private boolean luaCas(String hashKey, String blockId, String value,
                            int version, String mode, boolean allowAbsent) {
         Long r = redisTemplate.execute(updateBlockScript,
