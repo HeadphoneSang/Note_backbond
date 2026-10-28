@@ -78,10 +78,13 @@ public class NoteBlockService {
      * @return 返回块集合
      */
     public List<NoteBlock> selectNoteBlocks(Integer noteId){
+//        System.out.println("cac");
         return blockRedisService.getNoteBlocks(
                 noteId,
                 ()->blockMapper.selectList(new LambdaQueryWrapper<NoteBlock>().eq(NoteBlock::getNoteId, noteId).orderByAsc(NoteBlock::getOrderKey)),
                 (dirtyIds)->blockMapper.selectByIds(dirtyIds)
                 );
+
+//        return blockMapper.selectList(new LambdaQueryWrapper<NoteBlock>().eq(NoteBlock::getNoteId, noteId).orderByAsc(NoteBlock::getOrderKey));
     }
 }

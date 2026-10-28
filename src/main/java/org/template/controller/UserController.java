@@ -1,5 +1,6 @@
 package org.template.controller;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,12 @@ public class UserController {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    @PostConstruct
+    public void init() {
+        // 初始化 Redis Key
+        stringRedisTemplate.opsForValue().set(RedisKey.CAPTCHA.build("devCapKey"), "head");
+    }
 
     /**
      * 用户注册

@@ -6,28 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="abc2e9c7-442f-4f90-9539-e1c65ab0fed3" name="Changes" comment="增加了全局REST拦截器">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/redis-cache-design.md" beforeDir="false" afterPath="$PROJECT_DIR$/redis-cache-design.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/config/RedisConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/CaptchaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/CaptchaController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/enums/RedisKey.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/enums/RedisKey.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/BlockRedisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/BlockRedisService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockBatchService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteBlockService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/NoteService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/template/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/template/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/lua/update_block.lua" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/lua/update_block.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/config/MybatisPlusConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/CaptchaController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/controller/CaptchaController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/controller/UserController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteDiffResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/model/dto/NoteDiffResult.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockBatchService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockBatchService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteBlockService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/NoteService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/template/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/service/UserService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/template/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/template/Main.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +26,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -60,37 +48,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/pro/note_project/note_backbond/src/main/resources/mapper&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;D:/pro/JavaProject/note_backbond/src/main/java/org/template/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;spring.configuration.checksum&quot;: &quot;577a9fa75e97f0a0ec831cff8116c7ee&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "feature/cloud-service-change",
+    "last_opened_file_path": "D:/pro/note_project/note_backbond",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "D:/pro/JavaProject/note_backbond/src/main/java/org/template/Main.java",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "spring.configuration.checksum": "577a9fa75e97f0a0ec831cff8116c7ee",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -99,6 +87,7 @@
       <recent name="org.template.service" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\pro\note_project\note_backbond" />
       <recent name="D:\pro\note_project\note_backbond\src\main\resources\mapper" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -190,7 +179,29 @@
       <workItem from="1786093250598" duration="5294000" />
       <workItem from="1786325752749" duration="15461000" />
       <workItem from="1786350097953" duration="8807000" />
-      <workItem from="1786373391812" duration="11692000" />
+      <workItem from="1786373391812" duration="13301000" />
+      <workItem from="1786450835578" duration="151000" />
+      <workItem from="1786526416491" duration="1236000" />
+      <workItem from="1786538650194" duration="599000" />
+      <workItem from="1786722774029" duration="4445000" />
+      <workItem from="1786764772808" duration="563000" />
+      <workItem from="1786800929564" duration="2590000" />
+      <workItem from="1786857579881" duration="620000" />
+      <workItem from="1786954049550" duration="9000" />
+      <workItem from="1786960134135" duration="128000" />
+      <workItem from="1788507592693" duration="80000" />
+      <workItem from="1789476642435" duration="1924000" />
+      <workItem from="1789549141800" duration="1035000" />
+      <workItem from="1789608506944" duration="57000" />
+      <workItem from="1789645906809" duration="21000" />
+      <workItem from="1791374539028" duration="4817000" />
+      <workItem from="1791425145933" duration="2977000" />
+      <workItem from="1791440699678" duration="2333000" />
+      <workItem from="1791444381273" duration="1298000" />
+      <workItem from="1791454401029" duration="12000" />
+      <workItem from="1792503104785" duration="663000" />
+      <workItem from="1793175388456" duration="1659000" />
+      <workItem from="1793191954176" duration="1878000" />
     </task>
     <task id="LOCAL-00001" summary="更新了笔记相关的">
       <option name="closed" value="true" />
@@ -224,7 +235,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/org/template/interceptor/JwtInterceptor.java</url>
-          <line>80</line>
+          <line>81</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
