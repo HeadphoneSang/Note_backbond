@@ -1,0 +1,55 @@
+# ===== Maven 构建产物 =====
+target/
+*.jar
+*.war
+*.ear
+*.class
+dependency-reduced-pom.xml
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# ===== IntelliJ IDEA =====
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+# 如需共享运行配置，可放开这一行
+# !.idea/runConfigurations/
+
+# ===== Eclipse / STS =====
+.classpath
+.project
+.settings/
+bin/
+*.launch
+
+# ===== VS Code =====
+.vscode/
+
+# ===== 日志与临时文件 =====
+*.log
+logs/
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+hs_err_pid*
+replay_pid*
+
+# ===== 操作系统 =====
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# ===== 密钥 / 本地配置（不要提交到 GitHub）=====
+# 包含数据库、邮箱、MinIO 明文密码，请改成本地配置或环境变量
+*.env
+.env.*
+
+# ===== 本地工具/助手配置 =====
+.claude/settings.local.json
