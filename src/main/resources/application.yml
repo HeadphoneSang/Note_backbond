@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: note_backbond
+  profiles:
+    active: dev
+    # include:
+  cloud:
+    nacos:
+      server-addr: 192.144.229.116:8848
+      config:
+        namespace: ${spring.profiles.active:dev}
+        import-check:
+          enabled: false
+logging:
+  level:
+    com.alibaba.cloud.nacos: DEBUG
+    org.template: DEBUG
+---
+spring:
+  config:
+    import:
+      - nacos:datasource.properties?group=DEFAULT_GROUP
+      - nacos:redis-config.properties?group=DEFAULT_GROUP
+      - nacos:minio.properties?group=AUTH_GROUP
+      - nacos:mail.properties?group=DEFAULT_GROUP
+    activate:
+      on-profile: dev
+---
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+## mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: org.template.model
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+  type-handlers-package: org.template.handler
+server:
+  port: 8080
