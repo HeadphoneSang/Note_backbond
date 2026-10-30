@@ -1,6 +1,6 @@
 spring:
   application:
-    name: note_backbond
+    name: note-backbond
   profiles:
     active: dev
     # include:

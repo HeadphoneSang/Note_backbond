@@ -6,15 +6,13 @@
 
     <!-- Spring Boot 父工程 -->
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <groupId>com.chbcraft</groupId>
+        <artifactId>note</artifactId>
+        <version>1.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
-    <groupId>org.template</groupId>
     <artifactId>note_backbond</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <java.version>17</java.version>
